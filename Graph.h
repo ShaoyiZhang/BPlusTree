@@ -25,8 +25,8 @@ class Graph{
     return hash % TABLE_SIZE;
   }
   pair<int, bool> helpInsert(string name);
-  void insert(string name);
   void insert(Node* node);
+  void insert(string input);
   Node* find(string name);
 
 };
