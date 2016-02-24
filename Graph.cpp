@@ -7,7 +7,7 @@ Graph::Graph(){
   }
 }
 
-int Graph::hash(string input, int seed=0){
+int Graph::hash(string input, int seed){
     int hash = seed;
     for(int i = 0; i < input.length(); i++){
       hash = hash*101 + input[i];
