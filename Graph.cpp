@@ -30,45 +30,32 @@ void Graph::insert(Node* node){
     table[index.first] = node;
 }
 
-void Graph::insert(string input){
-  int length = input.length();
-  if (length == 0)
-    return;
-  string temp = "";
-  int current = 0;
-  while(current < length && input[current] != ','){
-    temp += input[current];
-    current ++;
+void Graph::insert(string name){
+  pair<int, bool> index = helpInsert(name);
+
+  if (!index.second){
+    Node* node = new Node(name);
+    table[index.first] = node;
   }
 
-  Node* init = new Node(temp);
+}
+
+void Graph::insert(vector<string> input){
+  int length = input.size();
+  if (length == 0)
+    return;
+
+  Node* init = new Node(input[0]);
   insert(init);
   Node* last = init;
 
-  int count = 0;
-  current ++;
-  while(current < length && count < 2){
-    current ++;
-    if(input[current] == ',')
-      count ++;
-  }
-  current ++;
-  temp = "";
-  while(current < length){
-    if(input[current] == ',' && temp.length() != 0){
-      Node* tmpNode = new Node(temp);
-      last->next = tmpNode;
-      last = last->next;
-      temp = "";
-    }
-    else
-      temp += input[current];
-  }
-  if(temp.length() != 0){
-    Node* tmpNode = new Node(temp);
+  if(length < 4)
+    return;
+
+  for(int i = 3; i < length; i++){
+    Node* tmpNode = new Node(input[i]);
     last->next = tmpNode;
     last = last->next;
-    temp = "";
   }
 }
 

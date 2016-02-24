@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ class Graph{
   }
   pair<int, bool> helpInsert(string name);
   void insert(Node* node);
-  void insert(string input);
+  void insert(vector<string> input);
+  void insert(string name);
   Node* find(string name);
-
 };
