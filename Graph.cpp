@@ -32,7 +32,14 @@ void Graph::insert(string name){
   }
 }
 
-Node* find(string name){
+void Graph::insert(Node* node){
+  pair<int, bool> index = helpInsert(name);
+
+  if (!index.second)
+    table[index.first] = node;
+}
+
+Node* Graph::find(string name){
   pair<int, bool> index = helpInsert(name);
 
   if(index.second){

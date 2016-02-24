@@ -8,7 +8,7 @@ class Node{
   Node* next;
   Node(){name = ""; next = NULL;}
   Node(string name){this->name = name; next = NULL;}
-
+  Node(string name, Node* next){this->name = name; this->next = next;}
 };
 
 class Graph{
@@ -26,6 +26,7 @@ class Graph{
   }
   pair<int, bool> helpInsert(string name);
   void insert(string name);
+  void insert(Node* node);
   Node* find(string name);
 
 };
