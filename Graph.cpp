@@ -7,6 +7,14 @@ Graph::Graph(){
   }
 }
 
+int Graph::hash(string input, int seed=0){
+    int hash = seed;
+    for(int i = 0; i < input.length(); i++){
+      hash = hash*101 + input[i];
+    }
+    return hash % TABLE_SIZE;
+  }
+
 pair<int, bool> Graph::helpInsert(string name){
   int index = hash(name);
   while(table[index] && table[index]->name != name)

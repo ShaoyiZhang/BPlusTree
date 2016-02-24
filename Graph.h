@@ -18,13 +18,7 @@ class Graph{
   Node** table;
  public:
   Graph();
-  int hash(string input, int seed=0){
-    int hash = seed;
-    for(int i = 0; i < input.length(); i++){
-      hash = hash*101 + input[i];
-    }
-    return hash % TABLE_SIZE;
-  }
+  int hash(string input, int seed=0);
   pair<int, bool> helpInsert(string name);
   void insert(Node* node);
   void insert(vector<string> input);
