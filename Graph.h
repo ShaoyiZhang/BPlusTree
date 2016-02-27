@@ -14,7 +14,7 @@ class Node{
 
 class Graph{
  private:
-  static const int TABLE_SIZE = 201;
+  static const int TABLE_SIZE = 211;
   Node** table;
  public:
   Graph();
@@ -24,4 +24,5 @@ class Graph{
   void insert(vector<string> input);
   void insert(string name);
   Node* find(string name);
+  void printAll();
 };

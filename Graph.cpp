@@ -8,12 +8,12 @@ Graph::Graph(){
 }
 
 int Graph::hash(string input, int seed){
-    int hash = seed;
-    for(int i = 0; i < input.length(); i++){
-      hash = hash*101 + input[i];
-    }
-    return hash % TABLE_SIZE;
+  unsigned int hash = seed;
+  for(int i = 0; i < input.length(); i++){
+    hash = hash*101 + input[i];
   }
+  return hash % TABLE_SIZE;
+}
 
 pair<int, bool> Graph::helpInsert(string name){
   int index = hash(name);
@@ -33,7 +33,6 @@ pair<int, bool> Graph::helpInsert(string name){
 
 void Graph::insert(Node* node){
   pair<int, bool> index = helpInsert(node->name);
-
   if (!index.second)
     table[index.first] = node;
 }
@@ -78,3 +77,17 @@ Node* Graph::find(string name){
     return NULL;
 }
 
+void Graph::printAll(){
+  for(int i = 0; i < TABLE_SIZE; i++){
+    if(table[i]){
+      Node* temp = table[i];
+      while(temp){
+        cout << temp->name << " ";
+        temp = temp->next;
+      }
+      cout << "\n";
+    }
+
+  }
+
+}
