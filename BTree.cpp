@@ -16,6 +16,7 @@ TreeNode::TreeNode(){
 
 }
 
+//constructor for a leaf
 TreeNode::TreeNode(string name, int index){
   isLeaf = true;
 
@@ -40,7 +41,7 @@ BTree::BTree(){
   root = NULL;
 }
 
-pair<pair<string, int>, bool>* BTree::find(string name){
+pair<pair<string, int>*, bool>* BTree::find(string name){
   TreeNode* current = root;
   int index = 0;
   while(current && !current->checkLeaf() && current->getNameIndex()){
@@ -48,20 +49,25 @@ pair<pair<string, int>, bool>* BTree::find(string name){
       index ++;
     current = current->getNextNodes()[index];
   }
+
+  //up to here current is at a leaf
   index = 0;
   while(index < L && current->getLeaves()[index] != NULL
-        && name > current->getLeaves()[index]->first){
+        && name > current->getLeaves()[index]->first)
     index ++;
-  }
 
-  pair<string, int> temp(leaves[index]);
 
+  //if it finds a node, return the info and true
   if(name == current->getLeaves()[index]->first){
-    pair<pair<string, int>, bool>* result = new pair<pair<string, int>, bool>(temp, true);
+    pair<string, int>* temp = new pair<string, int>(*current->getLeaves()[index]);
+    pair<pair<string, int>*, bool>* result = new pair<pair<string, int>*, bool>(temp, true);
     return result;
   }
-  pair<pair<string, int>, bool>* result = new pair<pair<string, int>, bool>
-    (temp, false);
+
+  //if it doesn't find the node, return a pointer to where it should be and false
+  //not sure if this is useful
+  pair<string, int>* temp = current->getLeaves()[index];
+  pair<pair<string, int>*, bool>* result = new pair<pair<string, int>*, bool>(temp, false);
   return result;
 }
 

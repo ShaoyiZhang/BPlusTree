@@ -33,5 +33,5 @@ class BTree{
  public:
   BTree();
   void insert(string name, int index);
-  pair<pair<string, int>, bool>* find(string name);
+  pair<pair<string, int>*, bool>* find(string name);
 };
