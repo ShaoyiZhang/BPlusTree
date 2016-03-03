@@ -1,5 +1,5 @@
-CXX=g++
-#CXX=clang++                                                                             
+#CXX=g++
+CXX=clang++                                                                             
 
 CXXFLAGS = -std=c++11 -Wall -Wextra -Wno-unused-parameter -Wno-unused-private-field -g  
 
@@ -11,6 +11,9 @@ BINARIES = main
 all: ${BINARIES}
 
 main: Graph.o Main.o
+	${CXX} $^ -o $@
+
+tree: BTree.o Main.o TreeNode.o
 	${CXX} $^ -o $@
 
 #test02: test02.o Student.o HashTable.o
