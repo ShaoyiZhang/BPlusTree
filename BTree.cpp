@@ -72,8 +72,16 @@ BTree::Insert(string name, int fileLocation){
 // return a pointer to the array of profile
 Node* BTree::InsertKey()
 
-pair<string,int>* BTree::FindHelper(string name) const{
-    Node* current = root;
+// given a key and a node, search for the key
+// return a leaf node that contains record
+Node* BTree::SearchHelper(string name, Node* current) const{
+    if (current->IsLeaf())
+        return current;
+    else{
+        SearchHelper(current->GetNextLevel(name));
+    }
+}    
+    /*Node* current = root;
     // traverse the road map
     while(current && !current->IsAboveLeaf() && current->GetNextLevel()){
             current = current->GetNextLevel();
@@ -85,14 +93,15 @@ pair<string,int>* BTree::FindHelper(string name) const{
     else{
         return current->profiles[current->IndexOfName(name)];
     }
-}
+}*/
 
-bool BTree::Find(string name) const{
-    pair<string,int>* result = FindHelper(name);
+bool BTree::Search(string name) const{
+    pair<string,int>* result = SearchHelper(name);
     if (result){
         cout << "Find!" << endl;
         return true;
     }
+    // if result == NULL
     else{
         cout << "Not find!" << endl;
         return false;
