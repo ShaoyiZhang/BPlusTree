@@ -4,25 +4,35 @@
 const static int M = 5;   // num of max pointers to next level
 const static int L = 3;   // num of max profiles 
 
-class Node(){
+class Level(){
 private:
-    string** names;             // pointer to an array of keys
-    Node** nextLevels;          // pointer to anarray of pointers
-    pair<string,int>** profiles  // array of profile
-                                // int indicate the location in the text file
-    bool isAboveLeaf;
-    int numOfKeys;          
+    int numOfKeysOccupied;
+    string** keys               // pointer to an array of keys
+    Level** nextLevels;         // pointer to anarray of pointers
+    bool isLeaf;
 public:
-    Node():names(NULL),nextLevels(NULL),profiles(NULL),isAboveLeaf(False){};
-    bool IsAboveLeaf(){ return isLeaf; };
-    Node* GetNextLevel() const;
+    Level():keys(NULL),nextLevels(NULL),isAboveLeaf(False),numOfKeysOccupied(0){};
+    bool IsLeaf(){ return isLeaf; };
+    Level* GetNextLevel() const;
     int IndexOfName() const;
+};
+
+class RoadMap():public Level{    
+public:
+    TreeNode():names(NULL),nextLevels(NULL),profiles(NULL),isAboveLeaf(False){};
+    bool IsAboveLeaf(){ return isLeaf; };
+
+
+};
+
+class DataArray():public Level{
+    // int indicate the location in the text file
 };
 
 
 class BTree{
 private:
-   Node* root 
+   TreeNode* root 
    int count;
 public:
 	BTree():root(NULL),count(0){};
