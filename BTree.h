@@ -16,7 +16,8 @@ private:
     Node* parent;
 public:
     Node():keys(NULL),parent(NULL),isLeaf(False),occupancy(0),capacity(0){};
-    Node(bool isLeaf, InternalNode* parent):keys(NULL),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(0){};
+    Node(bool isLeaf, int capcity):keys(NULL),isLeaf(isLeaf),occupancy(0),capacity(capacity),parent(NULL){};
+    Node(bool isLeaf, InternalNode* parent,int capcity):keys(NULL),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(capacity){};
     bool IsLeaf(){ return isLeaf; };
     int GetCapcity(){ return capacity; };
     int GetOccupancy(){ return occupancy; };
@@ -45,8 +46,8 @@ private:
     Node* previous;
 public: 
     // key = name, value = fileLocation
-    LeafNode():Node(true),values(NULL),next(NULL),previous(NULL);
-    LeafNode(InternalNode* parent):Node(true,parent),
+    LeafNode():Node(true,L),values(NULL),next(NULL),previous(NULL);
+    LeafNode(InternalNode* parent):Node(true,parent,L),
     void Add(string name,int value)
     LeafNode* GetNext(){ return next; };
     LeafNode* GetPrevious(){ return previous; };
@@ -65,6 +66,8 @@ public:
     int GetCount(){ return count; };
     void Insert(string name,int fileLocation);
     pair<string, int>* FindHelper(string name);
+    LeafNode* SearchHelper(string name, Node* current) const;
+    bool Search(string key) const;
 };
 
 #endif
