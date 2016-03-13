@@ -2,6 +2,36 @@
 #include <iostream>
 #include <math.h>
 
+Node::Node(bool isLeaf):keys(NULL),values(NULL),children(NULL),parent(NULL),isLeaf(isLeaf),occupancy(0),capacity(0){
+    if (isLeaf==true){
+        keys = new string[L]; 
+        values = new int[L];
+        capacity = L;
+    } 
+    else{
+        keys = new string[M];
+        children = new Node*[M];
+        capacity = M;
+    }
+}
+
+Node::Node(bool isLeaf, Node* parent):keys(NULL),values(NULL),children(NULL),parent(NULL),isLeaf(isLeaf),occupancy(0),capacity(0){
+    this->parent = parent;    
+    if (isLeaf==true){
+        keys = new string[L]; 
+        values = new int[L];
+        capacity = L;
+    } 
+    else{
+        keys = new string[M];
+        children = new Node*[M];
+        capacity = M;
+        
+    }
+}
+
+
+
 Node::~Node(){
     delete keys;
     delete parent;
@@ -21,29 +51,27 @@ int Node::IndexOfKey(string key) const{
 
 // returns a pointer to next level
 // the pointer may point to either InternalNode or LeafNode
-Node* InternalNode::GetNextLevel(string key) const{
-    return children[IndexOfChild(key)];
+Node* Node::GetNextLevel(string key) const{
+    return this->children[IndexOfChild(key)];
 }
 
 // A function for InternalNode (Road map)
 // return the index of the pointer which lead us to next level
-int InternalNode::IndexOfChild(string key) const{
+int Node::IndexOfChild(string key) const{
     int index = 0;
-    while (index < this->GetCapcity() && key > this->GetKeyAt(index) && this->GetKeyAt(index)!=""){
+    while (index < occupancy && key > keys[index] && keys[index]!=""){
         //cout << "capacity"<<this->GetCapcity()<<endl;
         index++;
-        if (children[index+1] == NULL)
-            break;
     }
-    cout<<"index"<< index << endl;
+    //cout<<"index"<< index << endl;
     return index;
 }
 
-void InternalNode::SplitNonLeaf(InternalNode* root){
+void Node::SplitNoneLeaf(Node* root){
 
     int middle = ceil(M/2);
     int index = 0;
-    InternalNode* newRoad = new InternalNode();
+    Node* newRoad = new Node(false);
     for (int i = middle+1; i<=this->GetOccupancy(); i++){
         newRoad->GetKeyAt(i) = this->GetKeyAt(i);
         index++;
@@ -59,35 +87,58 @@ void InternalNode::SplitNonLeaf(InternalNode* root){
     return;
 }
 
-void InternalNode::Add(Node* child,InternalNode* root){
-    int index = this->IndexOfChild(child->GetKeyAt(0));
-    for (int i=this->GetOccupancy()-1;i>=index;i--){
-        SetKeyAt(i+1,GetKeyAt(i));
+// add node to noneleaf
+void Node::Add(Node* child,Node* root){
+    // NoneLeafNode case
+    int index = this->IndexOfChild(child->keys[0]);
+    for (int i = occupancy-1; i >= index;i--){
+        //SetKeyAt(i+1,GetKeyAt(i));
+        keys[i+1]=keys[i];
         children[i+1] = children[i];
     }
     this->children[index]=child;
-    IncrOccupancy();
-    if (this->GetOccupancy()>=this->GetCapcity()){
-        if (this->GetParent() == NULL){
-            //BTree b = BTree();
+    occupancy++;
+    // if the none leaf node is FULL
+    // need to split
+    if (occupancy>=capacity){
+        if (parent == NULL){
             SplitRoot(root);
             return;
         }
         else
-            SplitNonLeaf(root);
+            SplitNoneLeaf(root);
     }
 }
 
-void InternalNode::SplitRoot(InternalNode* root){
-    InternalNode* latterHalf = new InternalNode();
+// Add key-value to Leaf
+void Node::Add(string key, int value, Node* root){
+    int index = this->IndexOfKey(key);
+    for (int i=this->occupancy-1;i>=index;i--){
+        //SetKeyAt(i+1, GetKeyAt(i));
+        keys[i+1]=keys[i];
+        values[i+1] = values[i];
+    }
+    SetKeyAt(index, key);
+    values[index]=value;
+    if (this->occupancy>=this->capacity){
+        SplitLeaf(root);
+    }
+}
+
+
+void Node::SplitRoot(Node* root){
+    Node* latterHalf = new Node(false);
     int middle = ceil(M/2);
     int index = 0;
     // for now, occupancy = 5 = capacity = M
-    for (int i = middle; i<this->GetOccupancy(); i++){
-        latterHalf->SetKeyAt(index, this->GetKeyAt(i));
+    // copy half of keys to new node
+    for (int i = middle; i<occupancy; i++){
+        latterHalf->keys[index]=this->keys[i];
+        //latterHalf->SetKeyAt(index, this->GetKeyAt(i));
         index++;
     }
     index = 0;
+    // copy half of children to new node
     for (int i = middle; i<=GetOccupancy(); i++){
         latterHalf->children[index]=this->children[i];
         index++;
@@ -95,9 +146,9 @@ void InternalNode::SplitRoot(InternalNode* root){
     return;
 }
 
-InternalNode::~InternalNode(){
-    delete []children;
-}
+//InternalNode::~InternalNode(){
+//    delete []children;
+//}
 
 /*
 // creating a LeafNode from scratch
@@ -106,30 +157,30 @@ LeafNode(string key, int value, LeafNode* previous):LeafNode(){
     values[0] = value;
     this->previous = previous;
 }*/
-
+/*
 LeafNode::~LeafNode(){
     delete [] values;
     delete previous;
     delete next;
 }
-
-void LeafNode::SplitLeaf(InternalNode* root){
-    LeafNode* newLeaf = new LeafNode();
+*/
+void Node::SplitLeaf(Node* root){
+    Node* newLeaf = new Node(true);
     for (int i = L; i >= ceil(L/2); i--){
         // copy latterHalf(index 2,3) to new leaf
-        newLeaf->Add(this->GetKeyAt(i), values[i],root);
-        this->SetKeyAt(i, "BLANK");
-        this->values[i]=2147483647;
-        newLeaf->SetPrevious(this);
-        newLeaf->SetNext(this->GetNext());
-        newLeaf->SetParent(this->GetParent());
-        this->SetNext(newLeaf);
+        newLeaf->Add(keys[i], values[i],root);
+        keys[i] = "";
+        values[i]=-2147483646;
+        newLeaf->next = this->next;
+        newLeaf->parent = this->parent;
+        this->next = newLeaf;
     }
-    // insert new leaf to parent
-    this->GetParent()->Add(newLeaf,root);
+    // insert new leaf to parent (whichi must be none-leaf)
+    this->parent->Add(newLeaf,root);
     // Add function automatically split parent if necessary
 }
 
+/*
 void LeafNode::Add(string key, int value, InternalNode* root){
     int index = this->IndexOfKey(key);
     for (int i=this->GetOccupancy()-1;i>=index;i--){
@@ -141,23 +192,27 @@ void LeafNode::Add(string key, int value, InternalNode* root){
     if (this->GetOccupancy()>=this->GetCapcity()){
         SplitLeaf(root);
     }
-}
+}*/
 
-void LeafNode::Print(){
-    for (int i = 0; i < this->GetOccupancy(); i++){
-        cout << "Key: "<< this->GetKeyAt(i) << "Value: " << this->values[i] << endl;
+void Node::Print(){
+    if (IsLeaf()){
+        for (int i = 0; i < this->occupancy; i++){
+            cout << "Key: "<< this->keys[i] << "Value: " << this->values[i] << endl;
+        }
     }
 }
 
 void BTree::Insert(string key, int value){
-    InternalNode* parent = InsertHelper(key,root);
-    LeafNode* leaf = static_cast<LeafNode*>(parent->GetNextLevel(key));
+    Node* parent = InsertHelper(key,root);
+    Node* leaf = parent->GetNextLevel(key);
     int indexOfChild = parent->IndexOfChild(key);
     //assert(indexOfChild<M);
     if (leaf == NULL){
-        LeafNode* newLeaf = new LeafNode(key,value,parent);
+        Node* newLeaf = new Node(true,parent);
+        newLeaf->SetKeyAt(0, key);
+        newLeaf->SetValueAt(0,value);
         parent->GetChildren()[indexOfChild] = newLeaf;
-        newLeaf->SetPrevious(static_cast<LeafNode*>(parent->GetChildren()[indexOfChild-1]));
+        newLeaf->SetPrevious(parent->GetChildren()[indexOfChild-1]);
         newLeaf->SetNext(NULL);
         newLeaf->SetKeyAt(indexOfChild, key);
     }
@@ -173,35 +228,36 @@ void BTree::Insert(string key, int value){
 // this level is right above the leaves
 // thus we can construct pointers between leaves
 // to make Range Qurey fast
-InternalNode* BTree::InsertHelper(string key, Node* current){
+Node* BTree::InsertHelper(string key, Node* current){
     Node* result = current;
     while(true){
         if (result->GetParent()==NULL)
-            break;
+            break;/*
         if (!result->IsLeaf()){
-            if (dynamic_cast<InternalNode*>(result)->GetChildren()[0]){
-                dynamic_cast<InternalNode*>(result)->GetChildren()[0]->IsLeaf();
+            if (result->GetChildren()[0]){
+                result->GetChildren()[0]->IsLeaf();
                 break;
             }
-        }
+        }*/
         else
-            result = static_cast<InternalNode*>(current)->GetNextLevel(key);
+            result = current->GetNextLevel(key);
     }
-    return dynamic_cast<InternalNode*>(result);
+    return result;
 }
 
 // given a key and a node, search for the key
 // return a pointer to a leaf node that might contains record
-LeafNode* BTree::SearchHelper(string key, Node* current) const{
+Node* BTree::SearchHelper(string key, Node* current) const{
     if (current == NULL)
         return NULL;
     else if (current->IsLeaf())
-        return dynamic_cast<LeafNode*>(current);
+        return current;
     else{
-        return SearchHelper(key,dynamic_cast<InternalNode*>(current)->GetNextLevel(key));
+        return SearchHelper(key,current->GetNextLevel(key));
     }
 }
 
+// calls search helper to look for key
 bool BTree::Search(string key) const{
     Node* result = SearchHelper(key,root);
     if (result){
@@ -220,13 +276,13 @@ void BTree::PrintAll(Node* root){
         return;
     else if (root->IsLeaf()){
         for(int i = 0; root->GetKeyAt(i)!="";i++){
-            dynamic_cast<LeafNode*>(dynamic_cast<InternalNode*>(root)->GetChildren()[i])->Print();
+            root->GetChildren()[i]->Print();
         }
     }
     else{
         int index = 0;
         while (root->GetKeyAt(index)!="") {
-            PrintAll(dynamic_cast<InternalNode*>(root)->GetChildren()[index]);
+            root->GetChildren()[index];
         }
     }
 }
