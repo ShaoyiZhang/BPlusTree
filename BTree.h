@@ -29,8 +29,9 @@ public:
     string GetKeyAt(int index) const { return keys[index]; };
     void SetKeyAt(int index,string key){ this->keys[index]=key; };
     void SetValueAt(int index, int value){ this->values[index]=value; };
+    int GetValueAt(int index){return this->values[index];};
     Node* GetParent(){ return parent; };
-    void SetParent(Node* parent){ parent=parent; };
+    void SetParent(Node* parent){ this->parent=parent; };
     void IncrOccupancy(){ occupancy++; };
     Node* GetNextLevel(string key) const;
     int IndexOfChild(string key) const;
@@ -44,8 +45,8 @@ public:
     Node** GetChildren(){ return children; };
     Node* GetNext(){ return next; };
     Node* GetPrevious(){ return previous; };
-    void SetNext(Node* next){ next = next; };
-    void SetPrevious(Node* previous){ previous = previous; };
+    void SetNext(Node* next){ this->next = next; };
+    void SetPrevious(Node* previous){ this->previous = previous; };
 };
 
 // BTree has a root node which is of type InternalNode
@@ -55,7 +56,7 @@ private:
    Node* root;
    int count;
 public:
-	BTree():root(new Node(false)),count(0){};
+	BTree():root(new Node(true)),count(0){};
     int GetCount(){ return count; };
     void Insert(string key,int value);
     Node* SearchHelper(string key, Node* current) const;
