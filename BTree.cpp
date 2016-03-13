@@ -60,64 +60,53 @@ void BTree::Insert(string name, int fileLocation){
     // leaf already exist, insert to leaf
     // check if need to split leaf
     else{ 
-        // statement true ->need to split
-        if (leaf->InsertAndSort(name,fileLocation,aboveLeaf)){
-            SplitLeaf(leaf,aboveLeaf);
-        }
+        leaf->Add(key,value);
     }
 }
-void BTree::SplitLeaf(LeafNode* leaf, InternalNode* parent){
+
+void LeafNode::SplitLeaf(){
     LeafNode* newLeaf = new LeafNode();
     for (int i = L; i > L/2; i--){
         // copy latterHalf(index 2,3) to new leaf
-        newLeaf.Add(leaf->RemoveKeyAt(i),leaf->RemoveValueAt(i));
-        newLeaf->SetPrevious(leaf);
-        newLeaf->SetNext(leaf->GetNext());
-        newLeaf->SetParent(parent);
-        leaf->SetNext(newLeaf);
+        newLeaf.Add(keys[i], values[i]);
+        this->keys[i]="BLANK";
+        this->values[i]=2147483647;
+        newLeaf->SetPrevious(this);
+        newLeaf->SetNext(this->GetNext());
+        newLeaf->SetParent(this->GetParent());
+        this->SetNext(newLeaf);
     }
     // insert new leaf to parent
-    parent->Add(newLeaf);
-    if (parent->GetOccupancy() == parent->GetCapacity()){
-        // need to split parent;
-        SplitNonLeaf(parent);
-    }
+    this->GetParent()->Add(newLeaf);
+    // Add function automatically split parent if necessary
 }
 
-// Insert to leaf and split it if necessary
-bool LeafNode::InsertAndSort(string key,int value,InternalNode* parent){
-    // InsertAndSort
-    this->Add(key,value);
-    if (occupancy >= capacity)
-    // need SPLIT!
-        return true;
-    else   
-    // no need to split
-        return false;
-}
 
 LeafNode::Add(string key, int value){
     int index = this->IndexOfKey(key);
-    if (index == -1){
-        this->keys[occupancy]=key;
-        this->values[occupancy]=value;
-    }
-    occupancy++;
     for (int i=occupancy-1;i>=index;i--){
         keys[i+1] = keys[i];
         values[i+1] = values[i]; 
     }
+    keys[index]=key;
+    values[index]=value;
+    if (occupancy>=capacity){
+        SplitLeaf();
+    }
 }
 
-InternalNode::Add(Node* myNode){
-    int index = this->IndexOfChild(myNode->GetKeyAt(0));
+InternalNode::Add(Node* child){
+    int index = this->IndexOfChild(child->GetKeyAt(0));
     for (int i=occupancy-1;i>=index;i--){
         keys[i+1] = keys[i];
         children[i+1] = children[i]; 
     }
     this->keys[index]=key;
-    this->children[index]=value;
+    this->children[index]=child;
     occupancy++;
+    if (occupancy>=capacity){
+        SplitNonLeaf();
+    }
 }
 
 
@@ -188,3 +177,16 @@ InternalNode* BTree::InsertHelper(string name, Node* current){
     else{
         
     }*/
+    
+    /*
+// Insert to leaf and split it if necessary
+bool LeafNode::InsertAndSort(string key,int value,InternalNode* parent){
+    // InsertAndSort
+    this->Add(key,value);
+    if (occupancy >= capacity)
+    // need SPLIT!
+        return true;
+    else   
+    // no need to split
+        return false;
+}*/
