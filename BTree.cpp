@@ -1,4 +1,5 @@
 #include "BTree.h"
+#include <iostream>
 #include <math.h>
 
 Node::~Node(){
@@ -28,11 +29,13 @@ Node* InternalNode::GetNextLevel(string key) const{
 // return the index of the pointer which lead us to next level
 int InternalNode::IndexOfChild(string key) const{
     int index = 0;
-    while (index < this->GetCapcity() && key > this->GetKeyAt(index)){
+    while (index < this->GetCapcity() && key > this->GetKeyAt(index) && this->GetKeyAt(index)!=""){
+        //cout << "capacity"<<this->GetCapcity()<<endl;
         index++;
         if (children[index+1] == NULL)
             break;
     }
+    cout<<"index"<< index << endl;
     return index;
 }
 
@@ -140,16 +143,23 @@ void LeafNode::Add(string key, int value, InternalNode* root){
     }
 }
 
+void LeafNode::Print(){
+    for (int i = 0; i < this->GetOccupancy(); i++){
+        cout << "Key: "<< this->GetKeyAt(i) << "Value: " << this->values[i] << endl;
+    }
+}
+
 void BTree::Insert(string key, int value){
-    LeafNode* leaf = SearchHelper(key,root);
-    InternalNode* parent = leaf->GetParent();
+    InternalNode* parent = InsertHelper(key,root);
+    LeafNode* leaf = static_cast<LeafNode*>(parent->GetNextLevel(key));
     int indexOfChild = parent->IndexOfChild(key);
     //assert(indexOfChild<M);
     if (leaf == NULL){
         LeafNode* newLeaf = new LeafNode(key,value,parent);
         parent->GetChildren()[indexOfChild] = newLeaf;
-        newLeaf->SetPrevious(dynamic_cast<LeafNode*>(parent->GetChildren()[indexOfChild-1]));
+        newLeaf->SetPrevious(static_cast<LeafNode*>(parent->GetChildren()[indexOfChild-1]));
         newLeaf->SetNext(NULL);
+        newLeaf->SetKeyAt(indexOfChild, key);
     }
     // leaf already exist, insert to leaf
     // check if need to split leaf
@@ -157,6 +167,27 @@ void BTree::Insert(string key, int value){
         leaf->Add(key,value,this->GetRoot());
     }
     count++;
+}
+
+// return a pointer points to the LAST level of the Road Map
+// this level is right above the leaves
+// thus we can construct pointers between leaves
+// to make Range Qurey fast
+InternalNode* BTree::InsertHelper(string key, Node* current){
+    Node* result = current;
+    while(true){
+        if (result->GetParent()==NULL)
+            break;
+        if (!result->IsLeaf()){
+            if (dynamic_cast<InternalNode*>(result)->GetChildren()[0]){
+                dynamic_cast<InternalNode*>(result)->GetChildren()[0]->IsLeaf();
+                break;
+            }
+        }
+        else
+            result = static_cast<InternalNode*>(current)->GetNextLevel(key);
+    }
+    return dynamic_cast<InternalNode*>(result);
 }
 
 // given a key and a node, search for the key
@@ -184,4 +215,18 @@ bool BTree::Search(string key) const{
     }   
 }
 
-
+void BTree::PrintAll(Node* root){
+    if (root == NULL)
+        return;
+    else if (root->IsLeaf()){
+        for(int i = 0; root->GetKeyAt(i)!="";i++){
+            dynamic_cast<LeafNode*>(dynamic_cast<InternalNode*>(root)->GetChildren()[i])->Print();
+        }
+    }
+    else{
+        int index = 0;
+        while (root->GetKeyAt(index)!="") {
+            PrintAll(dynamic_cast<InternalNode*>(root)->GetChildren()[index]);
+        }
+    }
+}

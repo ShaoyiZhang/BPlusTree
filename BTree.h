@@ -8,7 +8,7 @@ const int M = 5;   // num of max pointers to next level
 const int L = 3;   // num of max profiles 
 class InternalNode;
 class Node{
-private:
+protected:
     string* keys;               // pointer to an array of keys
     InternalNode* parent;
     bool isLeaf;
@@ -18,7 +18,7 @@ public:
     Node():keys(new string[L]),parent(NULL),isLeaf(false),occupancy(0),capacity(0){};
     Node(bool isLeaf, int capacity):keys(new string[L]),isLeaf(isLeaf),occupancy(0),capacity(capacity),parent(NULL){};
     Node(bool isLeaf, InternalNode* parent,int capacity):keys(new string[L]),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(capacity){};
-    bool IsLeaf(){ return this->isLeaf; };
+    virtual bool IsLeaf(){ return this->isLeaf; };
     int GetCapcity() const { return capacity; };
     int GetOccupancy() const { return occupancy; };
     int IndexOfKey(string key) const;
@@ -65,6 +65,7 @@ public:
     LeafNode* GetPrevious(){ return previous; };
     void SetNext(LeafNode* next){ next = next; };
     void SetPrevious(LeafNode* previous){ previous = previous; };
+    void Print();
     ~LeafNode();
 };
 
@@ -81,7 +82,9 @@ public:
     LeafNode* SearchHelper(string key, Node* current) const;
     InternalNode* GetRoot(){ return root; };
     bool Search(string key) const;
-
+    InternalNode* InsertHelper(string key, Node* current);
+    void PrintAll(){ PrintAll(root); };
+    void PrintAll(Node* root);
 };
 
 #endif
