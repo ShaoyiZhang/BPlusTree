@@ -55,7 +55,7 @@ private:
    Node* root;
    int count;
 public:
-	BTree():root(new Node()),count(0){};
+	BTree():root(new Node(false)),count(0){};
     int GetCount(){ return count; };
     void Insert(string key,int value);
     Node* SearchHelper(string key, Node* current) const;

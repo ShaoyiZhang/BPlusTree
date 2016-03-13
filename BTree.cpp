@@ -10,7 +10,10 @@ Node::Node(bool isLeaf):keys(NULL),values(NULL),children(NULL),parent(NULL),isLe
     } 
     else{
         keys = new string[M];
-        children = new Node*[M];
+        children = new Node*[M+1];
+        for (int i = 0; i < M+1; i++){
+            children[i]=NULL;
+        }
         capacity = M;
     }
 }
@@ -24,7 +27,10 @@ Node::Node(bool isLeaf, Node* parent):keys(NULL),values(NULL),children(NULL),par
     } 
     else{
         keys = new string[M];
-        children = new Node*[M];
+        children = new Node*[M+1];
+        for (int i = 0; i < M+1; i++){
+            children[i]=NULL;
+        }
         capacity = M;   
     }
 }
@@ -33,7 +39,9 @@ Node::Node(bool isLeaf, Node* parent):keys(NULL),values(NULL),children(NULL),par
 
 Node::~Node(){
     delete keys;
+    delete values;
     delete parent;
+    delete [] children;
 }
 
 // a function for LeafNode (data goes here)
@@ -179,7 +187,13 @@ void BTree::Insert(string key, int value){
         newLeaf->SetKeyAt(0, key);
         newLeaf->SetValueAt(0,value);
         parent->GetChildren()[indexOfChild] = newLeaf;
-        newLeaf->SetPrevious(parent->GetChildren()[indexOfChild-1]);
+        // if newLeaf is the first leaf in that level
+        // its previous should be NULL
+        if (indexOfChild==0){
+            newLeaf->SetPrevious(NULL);
+        }
+        else
+            newLeaf->SetPrevious(parent->GetChildren()[indexOfChild-1]);
         newLeaf->SetNext(NULL);
         newLeaf->SetKeyAt(indexOfChild, key);
     }
@@ -249,7 +263,7 @@ void BTree::PrintAll(Node* root){
     else{
         int index = 0;
         while (root->GetKeyAt(index)!="") {
-            root->GetChildren()[index];
+            PrintAll(root->GetChildren()[index]);
         }
     }
 }
