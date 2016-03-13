@@ -1,23 +1,16 @@
 #include "BTree.h"
 #include <math.h>
 
-
-LeafNode(InternalNode* parent):Node(true),keys(NULL),next(NULL),previous(NULL){
+Node():keys(NULL),parent(NULL),isLeaf(False),occupancy(0),capacity(0){
     keys = new string[L];
-    values = new int[L];
 }
 
-// creating a LeafNode from scratch
-LeafNode(string key, int value, LeafNode* previous):LeafNode(){
-    keys[0] = key;
-    values[0] = value;
-    this->previous = previous;
+Node(bool isLeaf, int capcity):keys(NULL),isLeaf(isLeaf),occupancy(0),capacity(capacity),parent(NULL){
+    keys = new string[L];
 }
 
-// returns a pointer to next level
-// the pointer may point to either InternalNode or LeafNode
-Node* InternalNode::GetNextLevel(string name){
-    return children[IndexOfChild(name)];
+Node(bool isLeaf, InternalNode* parent,int capcity):keys(NULL),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(capacity){
+    keys = new string[L]; 
 }
 
 // a function for LeafNode (data goes here)
@@ -30,6 +23,20 @@ int Node::IndexOfKey(string key){
             index++;
     }
     return index;
+}
+
+InternalNode():Node(false,M){
+    children =  new Node*[M];
+}
+
+InternalNode(InternalNode* parent):Node(false,parent,M){
+    children =  new Node*[M];
+}
+
+// returns a pointer to next level
+// the pointer may point to either InternalNode or LeafNode
+Node* InternalNode::GetNextLevel(string name){
+    return children[IndexOfChild(name)];
 }
 
 // A function for InternalNode (Road map)
@@ -83,6 +90,20 @@ void InternalNode::Add(Node* child){
     }
 }
 
+LeafNode(InternalNode* parent):Node(true,L),next(NULL),previous(NULL){
+    values = new int[L];
+}
+LeafNode(InternalNode* parent):Node(true,parent,L),next(NULL),previous(NULL){
+    values = new int[L];
+}
+/*
+// creating a LeafNode from scratch
+LeafNode(string key, int value, LeafNode* previous):LeafNode(){
+    keys[0] = key;
+    values[0] = value;
+    this->previous = previous;
+}*/
+
 void LeafNode::SplitLeaf(){
     LeafNode* newLeaf = new LeafNode();
     for (int i = L; i >= ceil(L/2); i--){
@@ -128,6 +149,7 @@ void BTree::Insert(string name, int fileLocation){
     else{ 
         leaf->Add(key,value);
     }
+    count++;
 }
 
 void BTree::SplitRoot(){
