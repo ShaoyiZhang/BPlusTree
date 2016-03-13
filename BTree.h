@@ -46,48 +46,8 @@ public:
     Node* GetPrevious(){ return previous; };
     void SetNext(Node* next){ next = next; };
     void SetPrevious(Node* previous){ previous = previous; };
-
-    //int IndexOfKey(string name, int capacity) const;
-};
-/*
-class InternalNode:public Node{
-private:
-    //const static int capacity = M; 
-    Node** children;         // pointer to an array of pointers    
-public:
-    InternalNode():Node(false,M),children(new Node*[M]){};
-    InternalNode(InternalNode* parent):Node(false,parent,M),children(new Node*[M]){};
-    int IndexOfChild(string name) const;
-    Node* GetNextLevel(string key) const;
-    void SplitNonLeaf(InternalNode* root);
-    void SplitRoot(InternalNode* root);
-    void Add(Node* child,InternalNode* root);
-    //Node* GetChildrenAt(int index) const { return children[index]; };
-    Node** GetChildren(){ return children; };
-    ~InternalNode();
 };
 
-class LeafNode:public Node{
-private:
-    //const static int capacity = L;
-    int* values;          // int indicate the location in the text file
-    LeafNode* next;
-    LeafNode* previous;
-public: 
-    // key = name, value = fileLocation
-    LeafNode():Node(true,L),values(new int[L]),next(NULL),previous(NULL){};
-    LeafNode(InternalNode* parent):Node(true,parent,L),values(new int[L]),next(NULL),previous(NULL){};
-    LeafNode(string key,int value,InternalNode* parent):Node(true,parent,L),values(new int[L]),next(NULL),previous(NULL){SetKeyAt(0, key); values[0]=value; };
-    void SplitLeaf(InternalNode* root);
-    void Add(string name,int value,InternalNode* root);
-    LeafNode* GetNext(){ return next; };
-    LeafNode* GetPrevious(){ return previous; };
-    void SetNext(LeafNode* next){ next = next; };
-    void SetPrevious(LeafNode* previous){ previous = previous; };
-    void Print();
-    ~LeafNode();
-};
-*/
 // BTree has a root node which is of type InternalNode
 // The children ptrs of root might be LeafNode AND InternalNode
 class BTree{

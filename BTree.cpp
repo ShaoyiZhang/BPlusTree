@@ -25,8 +25,7 @@ Node::Node(bool isLeaf, Node* parent):keys(NULL),values(NULL),children(NULL),par
     else{
         keys = new string[M];
         children = new Node*[M];
-        capacity = M;
-        
+        capacity = M;   
     }
 }
 
@@ -146,24 +145,6 @@ void Node::SplitRoot(Node* root){
     return;
 }
 
-//InternalNode::~InternalNode(){
-//    delete []children;
-//}
-
-/*
-// creating a LeafNode from scratch
-LeafNode(string key, int value, LeafNode* previous):LeafNode(){
-    keys[0] = key;
-    values[0] = value;
-    this->previous = previous;
-}*/
-/*
-LeafNode::~LeafNode(){
-    delete [] values;
-    delete previous;
-    delete next;
-}
-*/
 void Node::SplitLeaf(Node* root){
     Node* newLeaf = new Node(true);
     for (int i = L; i >= ceil(L/2); i--){
@@ -179,20 +160,6 @@ void Node::SplitLeaf(Node* root){
     this->parent->Add(newLeaf,root);
     // Add function automatically split parent if necessary
 }
-
-/*
-void LeafNode::Add(string key, int value, InternalNode* root){
-    int index = this->IndexOfKey(key);
-    for (int i=this->GetOccupancy()-1;i>=index;i--){
-        SetKeyAt(i+1, GetKeyAt(i));
-        values[i+1] = values[i]; 
-    }
-    SetKeyAt(index, key);
-    values[index]=value;
-    if (this->GetOccupancy()>=this->GetCapcity()){
-        SplitLeaf(root);
-    }
-}*/
 
 void Node::Print(){
     if (IsLeaf()){
