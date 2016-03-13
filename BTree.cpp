@@ -81,6 +81,29 @@ void LeafNode::SplitLeaf(){
     // Add function automatically split parent if necessary
 }
 
+InternalNode::SplitNonLeaf(){
+
+    int middle = M/2+1;
+    int index = 0;
+    InternalNode* newRoad = new InternalNode();
+    for (int i = middle+1; i<occupancy; i++){
+        newRoad.keys[index] = this->keys[i];
+        index++;
+    }
+    index = 0;
+    for (int i = middle+1; i<occupancy; i++){
+        newRoad.children[index]=this->children[i];
+        index++;
+    }
+    // finish copying, insert to parent
+    // but if parent is root, things are differnt
+    if (this->parent == NULL){
+        SplitRoot();
+        return;
+    }
+    else
+        this->GetParent().Add(newRoad);
+}
 
 LeafNode::Add(string key, int value){
     int index = this->IndexOfKey(key);
@@ -108,6 +131,8 @@ InternalNode::Add(Node* child){
         SplitNonLeaf();
     }
 }
+
+
 
 
 // given a key and a node, search for the key
