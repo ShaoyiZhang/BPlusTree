@@ -1,11 +1,13 @@
 #include "BTree.h"
 #include <iostream>
 #include <math.h>
-
+#include <climits>
 Node::Node(bool isLeaf):keys(NULL),values(NULL),children(NULL),parent(NULL),isLeaf(isLeaf),occupancy(0),capacity(0){
     if (isLeaf==true){
         keys = new string[L]; 
         values = new int[L];
+        for(int i = 0; i < L; i++)
+            values[i] = INT_MIN;
         capacity = L;
     } 
     else{
@@ -23,6 +25,9 @@ Node::Node(bool isLeaf, Node* parent):keys(NULL),values(NULL),children(NULL),par
     if (isLeaf==true){
         keys = new string[L]; 
         values = new int[L];
+        for(int i = 0; i < L; i++)
+            values[i] = INT_MIN;
+        
         capacity = L;
     } 
     else{
@@ -59,6 +64,8 @@ int Node::IndexOfKey(string key) const{
 // returns a pointer to next level
 // the pointer may point to either InternalNode or LeafNode
 Node* Node::GetNextLevel(string key) const{
+    if(this->isLeaf)
+        return NULL;
     return this->children[IndexOfChild(key)];
 }
 
@@ -66,7 +73,7 @@ Node* Node::GetNextLevel(string key) const{
 // return the index of the pointer which lead us to next level
 int Node::IndexOfChild(string key) const{
     int index = 0;
-    while (index < occupancy && key > keys[index] && keys[index]!=""){
+    while (index < occupancy && key >= keys[index]){
         //cout << "capacity"<<this->GetCapcity()<<endl;
         index++;
     }
@@ -120,16 +127,23 @@ void Node::Add(Node* child,Node* root){
 // Add key-value to Leaf
 void Node::Add(string key, int value, Node* root){
     int index = this->IndexOfKey(key);
-    for (int i=this->occupancy-1;i>=index;i--){
-        //SetKeyAt(i+1, GetKeyAt(i));
-        keys[i+1]=keys[i];
-        values[i+1] = values[i];
+    if(index == -1){
+        keys[0] = key;
+        values[0] = value;
     }
-    SetKeyAt(index, key);
-    values[index]=value;
-    if (this->occupancy>=this->capacity){
-        SplitLeaf(root);
+    else{
+        for (int i=this->occupancy-1;i>=index;i--){
+            //SetKeyAt(i+1, GetKeyAt(i));
+            keys[i+1]=keys[i];
+            values[i+1] = values[i];
+        }
+        SetKeyAt(index, key);
+        values[index]=value;
+        if (this->occupancy>=this->capacity){
+            SplitLeaf(root);
+        }
     }
+    occupancy++;
 }
 
 
@@ -172,7 +186,7 @@ void Node::SplitLeaf(Node* root){
 void Node::Print(){
     if (IsLeaf()){
         for (int i = 0; i < this->occupancy; i++){
-            cout << "Key: "<< this->keys[i] << "Value: " << this->values[i] << endl;
+            cout << "Key: "<< this->keys[i] << " Value: " << this->values[i] << endl;
         }
     }
 }
@@ -181,8 +195,23 @@ void BTree::Insert(string key, int value){
     Node* parent = InsertHelper(key,root);
     Node* leaf = parent->GetNextLevel(key);
     int indexOfChild = parent->IndexOfChild(key);
+    if(count == 0){
+        count ++;
+        parent->Add(key, value, root);
+    }
+    else if(count == 1){
+        count ++;
+        Node* newRoot = new Node(false, NULL);
+        string temp1 = root->GetKeyAt(0);
+        int temp2 = root->GetValueAt(0);
+        root = newRoot;
+        Insert(key, value);
+        Insert(temp1, temp2);
+        count --;
+    }
     //assert(indexOfChild<M);
-    if (leaf == NULL){
+    else if (leaf == NULL){
+        count ++;
         Node* newLeaf = new Node(true,parent);
         newLeaf->SetKeyAt(0, key);
         newLeaf->SetValueAt(0,value);
@@ -192,17 +221,21 @@ void BTree::Insert(string key, int value){
         if (indexOfChild==0){
             newLeaf->SetPrevious(NULL);
         }
-        else
+        else{
             newLeaf->SetPrevious(parent->GetChildren()[indexOfChild-1]);
+            newLeaf->GetPrevious()->SetNext(newLeaf);
+        }
         newLeaf->SetNext(NULL);
         newLeaf->SetKeyAt(indexOfChild, key);
+        newLeaf->IncrOccupancy();
+        parent->IncrOccupancy();
     }
     // leaf already exist, insert to leaf
     // check if need to split leaf
-    else{ 
+    else{
+        count ++;
         leaf->Add(key,value,this->GetRoot());
     }
-    count++;
 }
 
 // return a pointer points to the LAST level of the Road Map
@@ -256,14 +289,10 @@ void BTree::PrintAll(Node* root){
     if (root == NULL)
         return;
     else if (root->IsLeaf()){
-        for(int i = 0; root->GetKeyAt(i)!="";i++){
-            root->GetChildren()[i]->Print();
-        }
+        root->Print();
     }
     else{
-        int index = 0;
-        while (root->GetKeyAt(index)!="") {
-            PrintAll(root->GetChildren()[index]);
-        }
+        for(int i = 0; i < root->GetOccupancy(); i++)
+            PrintAll(root->GetChildren()[i]);
     }
 }
