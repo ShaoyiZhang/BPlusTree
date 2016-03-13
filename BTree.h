@@ -6,68 +6,80 @@ using namespace std;
 
 const int M = 5;   // num of max pointers to next level
 const int L = 3;   // num of max profiles 
-
-class Node(){
+class InternalNode;
+class Node{
 private:
-    int capacity;
-    int occupancy;
-    bool isLeaf;
     string* keys;               // pointer to an array of keys
-    Node* parent;
+    InternalNode* parent;
+    bool isLeaf;
+    int occupancy;
+    int capacity;
 public:
-    Node():keys(NULL),parent(NULL),isLeaf(False),occupancy(0),capacity(0);
-    Node(bool isLeaf, int capcity):keys(NULL),isLeaf(isLeaf),occupancy(0),capacity(capacity),parent(NULL);
-    Node(bool isLeaf, InternalNode* parent,int capcity):keys(NULL),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(capacity);
-    bool IsLeaf(){ return isLeaf; };
-    int GetCapcity(){ return capacity; };
-    int GetOccupancy(){ return occupancy; };
-    int IndexOfKey(string name) const;
-    int GetKeyAt(int index) const { return keys[index]; };
+    Node():keys(new string[L]),parent(NULL),isLeaf(false),occupancy(0),capacity(0){};
+    Node(bool isLeaf, int capacity):keys(new string[L]),isLeaf(isLeaf),occupancy(0),capacity(capacity),parent(NULL){};
+    Node(bool isLeaf, InternalNode* parent,int capacity):keys(new string[L]),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(capacity){};
+    bool IsLeaf(){ return this->isLeaf; };
+    int GetCapcity() const { return capacity; };
+    int GetOccupancy() const { return occupancy; };
+    int IndexOfKey(string key) const;
+    string GetKeyAt(int index) const { return keys[index]; };
+    void SetKeyAt(int index,string key){ this->keys[index]=key; };
+    InternalNode* GetParent(){ return parent; };
+    void SetParent(InternalNode* parent){ parent=parent; };
+    void IncrOccupancy(){ occupancy++; };
+    virtual ~Node();
     //int IndexOfKey(string name, int capacity) const;
 };
 
-class InternalNode():public Node{
+class InternalNode:public Node{
 private:
     //const static int capacity = M; 
     Node** children;         // pointer to an array of pointers    
 public:
-    InternalNode():Node(false,M);
-    InternalNode(InternalNode* parent):Node(false,parent,M);
-    int IndexOfChild(string name);
-    Node* GetNextLevel() const;
-    Node* GetChildren() const { return children; };
+    InternalNode():Node(false,M),children(new Node*[M]){};
+    InternalNode(InternalNode* parent):Node(false,parent,M),children(new Node*[M]){};
+    int IndexOfChild(string name) const;
+    Node* GetNextLevel(string key) const;
+    void SplitNonLeaf(InternalNode* root);
+    void SplitRoot(InternalNode* root);
+    void Add(Node* child,InternalNode* root);
+    //Node* GetChildrenAt(int index) const { return children[index]; };
+    Node** GetChildren(){ return children; };
+    ~InternalNode();
 };
 
-class LeafNode():public Node{
+class LeafNode:public Node{
 private:
     //const static int capacity = L;
     int* values;          // int indicate the location in the text file
-    Node* next;
-    Node* previous;
+    LeafNode* next;
+    LeafNode* previous;
 public: 
     // key = name, value = fileLocation
-    LeafNode():Node(true,L),next(NULL),previous(NULL);
-    LeafNode(InternalNode* parent):Node(true,parent,L),next(NULL),previous(NULL);
-    void SplitLeaf();
-    void Add(string name,int value);
+    LeafNode():Node(true,L),values(new int[L]),next(NULL),previous(NULL){};
+    LeafNode(InternalNode* parent):Node(true,parent,L),values(new int[L]),next(NULL),previous(NULL){};
+    LeafNode(string key,int value,InternalNode* parent):Node(true,parent,L),values(new int[L]),next(NULL),previous(NULL){SetKeyAt(0, key); values[0]=value; };
+    void SplitLeaf(InternalNode* root);
+    void Add(string name,int value,InternalNode* root);
     LeafNode* GetNext(){ return next; };
     LeafNode* GetPrevious(){ return previous; };
     void SetNext(LeafNode* next){ next = next; };
-    void SetPrevious(LeafNode* previous){ previous = previous; };    
+    void SetPrevious(LeafNode* previous){ previous = previous; };
+    ~LeafNode();
 };
 
 // BTree has a root node which is of type InternalNode
 // The children ptrs of root might be LeafNode AND InternalNode
 class BTree{
 private:
-   InternalNode* root 
+   InternalNode* root;
    int count;
 public:
-	BTree():root(NULL),count(0){};
+	BTree():root(new InternalNode()),count(0){};
     int GetCount(){ return count; };
-    void Insert(string name,int fileLocation);
-    void SplitRoot();
-    LeafNode* SearchHelper(string name, Node* current) const;
+    void Insert(string key,int value);
+    LeafNode* SearchHelper(string key, Node* current) const;
+    InternalNode* GetRoot(){ return root; };
     bool Search(string key) const;
 
 };

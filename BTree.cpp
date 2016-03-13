@@ -1,22 +1,15 @@
 #include "BTree.h"
 #include <math.h>
 
-Node():keys(NULL),parent(NULL),isLeaf(False),occupancy(0),capacity(0){
-    keys = new string[L];
-}
-
-Node(bool isLeaf, int capcity):keys(NULL),isLeaf(isLeaf),occupancy(0),capacity(capacity),parent(NULL){
-    keys = new string[L];
-}
-
-Node(bool isLeaf, InternalNode* parent,int capcity):keys(NULL),parent(parent),isLeaf(isLeaf),occupancy(0),capacity(capacity){
-    keys = new string[L]; 
+Node::~Node(){
+    delete keys;
+    delete parent;
 }
 
 // a function for LeafNode (data goes here)
 // return the index of a given key in the keys array
 // if name is NOT present in the array, return -1
-int Node::IndexOfKey(string key){
+int Node::IndexOfKey(string key) const{
     int index = -1;
     for (int i = 0; i < occupancy; i++){
         if (key>=keys[i])
@@ -25,77 +18,84 @@ int Node::IndexOfKey(string key){
     return index;
 }
 
-InternalNode():Node(false,M){
-    children =  new Node*[M];
-}
-
-InternalNode(InternalNode* parent):Node(false,parent,M){
-    children =  new Node*[M];
-}
-
 // returns a pointer to next level
 // the pointer may point to either InternalNode or LeafNode
-Node* InternalNode::GetNextLevel(string name){
-    return children[IndexOfChild(name)];
+Node* InternalNode::GetNextLevel(string key) const{
+    return children[IndexOfChild(key)];
 }
 
 // A function for InternalNode (Road map)
 // return the index of the pointer which lead us to next level
-int InternalNode::IndexOfChild(string key){
+int InternalNode::IndexOfChild(string key) const{
     int index = 0;
-    while (index < capacity && key > keys[index]){
+    while (index < this->GetCapcity() && key > this->GetKeyAt(index)){
         index++;
         if (children[index+1] == NULL)
             break;
     }
-    return children[index];
+    return index;
 }
 
-void InternalNode::SplitNonLeaf(){
+void InternalNode::SplitNonLeaf(InternalNode* root){
 
     int middle = ceil(M/2);
     int index = 0;
     InternalNode* newRoad = new InternalNode();
-    for (int i = middle+1; i<=occupancy; i++){
-        newRoad.keys[index] = this->keys[i];
+    for (int i = middle+1; i<=this->GetOccupancy(); i++){
+        newRoad->GetKeyAt(i) = this->GetKeyAt(i);
         index++;
     }
     index = 0;
-    for (int i = middle+1; i<=occupancy; i++){
-        newRoad.children[index]=this->children[i];
+    for (int i = middle+1; i<=this->GetOccupancy(); i++){
+        newRoad->children[index]=this->children[i];
         index++;
     }
     // finish copying, insert to parent
     // but if parent is root, things are differnt
-    this->GetParent().Add(newRoad);
+    this->GetParent()->Add(newRoad,root);
     return;
 }
 
-void InternalNode::Add(Node* child){
+void InternalNode::Add(Node* child,InternalNode* root){
     int index = this->IndexOfChild(child->GetKeyAt(0));
-    for (int i=occupancy-1;i>=index;i--){
-        keys[i+1] = keys[i];
-        children[i+1] = children[i]; 
+    for (int i=this->GetOccupancy()-1;i>=index;i--){
+        SetKeyAt(i+1,GetKeyAt(i));
+        children[i+1] = children[i];
     }
-    this->keys[index]=key;
     this->children[index]=child;
-    occupancy++;
-    if (occupancy>=capacity){
+    IncrOccupancy();
+    if (this->GetOccupancy()>=this->GetCapcity()){
         if (this->GetParent() == NULL){
-            SplitRoot();
+            //BTree b = BTree();
+            SplitRoot(root);
             return;
         }
         else
-            SplitNonLeaf();
+            SplitNonLeaf(root);
     }
 }
 
-LeafNode(InternalNode* parent):Node(true,L),next(NULL),previous(NULL){
-    values = new int[L];
+void InternalNode::SplitRoot(InternalNode* root){
+    InternalNode* latterHalf = new InternalNode();
+    int middle = ceil(M/2);
+    int index = 0;
+    // for now, occupancy = 5 = capacity = M
+    for (int i = middle; i<this->GetOccupancy(); i++){
+        latterHalf->SetKeyAt(index, this->GetKeyAt(i));
+        index++;
+    }
+    index = 0;
+    for (int i = middle; i<=GetOccupancy(); i++){
+        latterHalf->children[index]=this->children[i];
+        index++;
+    }
+    return;
 }
-LeafNode(InternalNode* parent):Node(true,parent,L),next(NULL),previous(NULL){
-    values = new int[L];
+
+InternalNode::~InternalNode(){
+    delete []children;
 }
+
 /*
 // creating a LeafNode from scratch
 LeafNode(string key, int value, LeafNode* previous):LeafNode(){
@@ -104,12 +104,18 @@ LeafNode(string key, int value, LeafNode* previous):LeafNode(){
     this->previous = previous;
 }*/
 
-void LeafNode::SplitLeaf(){
+LeafNode::~LeafNode(){
+    delete [] values;
+    delete previous;
+    delete next;
+}
+
+void LeafNode::SplitLeaf(InternalNode* root){
     LeafNode* newLeaf = new LeafNode();
     for (int i = L; i >= ceil(L/2); i--){
         // copy latterHalf(index 2,3) to new leaf
-        newLeaf.Add(keys[i], values[i]);
-        this->keys[i]="BLANK";
+        newLeaf->Add(this->GetKeyAt(i), values[i],root);
+        this->SetKeyAt(i, "BLANK");
         this->values[i]=2147483647;
         newLeaf->SetPrevious(this);
         newLeaf->SetNext(this->GetNext());
@@ -117,65 +123,51 @@ void LeafNode::SplitLeaf(){
         this->SetNext(newLeaf);
     }
     // insert new leaf to parent
-    this->GetParent()->Add(newLeaf);
+    this->GetParent()->Add(newLeaf,root);
     // Add function automatically split parent if necessary
 }
 
-void LeafNode::Add(string key, int value){
+void LeafNode::Add(string key, int value, InternalNode* root){
     int index = this->IndexOfKey(key);
-    for (int i=occupancy-1;i>=index;i--){
-        keys[i+1] = keys[i];
+    for (int i=this->GetOccupancy()-1;i>=index;i--){
+        SetKeyAt(i+1, GetKeyAt(i));
         values[i+1] = values[i]; 
     }
-    keys[index]=key;
+    SetKeyAt(index, key);
     values[index]=value;
-    if (occupancy>=capacity){
-        SplitLeaf();
+    if (this->GetOccupancy()>=this->GetCapcity()){
+        SplitLeaf(root);
     }
 }
 
-void BTree::Insert(string name, int fileLocation){
-    LeafNoede* leaf = SearchHelper(name,root);
+void BTree::Insert(string key, int value){
+    LeafNode* leaf = SearchHelper(key,root);
     InternalNode* parent = leaf->GetParent();
-    int indexOfChild = ->IndexOfChild(name);
-    assert(indexOfChild<M);
+    int indexOfChild = parent->IndexOfChild(key);
+    //assert(indexOfChild<M);
     if (leaf == NULL){
-        parent[indexOfChild] = new LeafNode(name,fileLocation);
-        parent[indexOfChild]->SetPrevious(parent[indexOfChild-1]);
-        parent[indexOfChild]->SetNext(NULL);
+        LeafNode* newLeaf = new LeafNode(key,value,parent);
+        parent->GetChildren()[indexOfChild] = newLeaf;
+        newLeaf->SetPrevious(dynamic_cast<LeafNode*>(parent->GetChildren()[indexOfChild-1]));
+        newLeaf->SetNext(NULL);
     }
     // leaf already exist, insert to leaf
     // check if need to split leaf
     else{ 
-        leaf->Add(key,value);
+        leaf->Add(key,value,this->GetRoot());
     }
     count++;
 }
 
-void BTree::SplitRoot(){
-    InternalNode* latterHalf = new InternalNode();
-    int middle = ceil(M/2);
-    int index = 0;
-    // for now, occupancy = 5 = capacity = M
-    for (int i = middle; i<occupancy; i++){
-        latterHalf.keys[index] = this->keys[i];
-        index++;
-    }
-    index = 0;
-    for (int i = middle; i<=occupancy; i++){
-        latterHalf.children[index]=this->children[i];
-        index++;
-    }
-    return;
-}
-
 // given a key and a node, search for the key
-// return a pointer to a leaf node that contains record
-LeafNode* BTree::SearchHelper(string name, Node* current) const{
-    if (current->IsLeaf())
-        return current;
+// return a pointer to a leaf node that might contains record
+LeafNode* BTree::SearchHelper(string key, Node* current) const{
+    if (current == NULL)
+        return NULL;
+    else if (current->IsLeaf())
+        return dynamic_cast<LeafNode*>(current);
     else{
-        SearchHelper(current->GetNextLevel(name));
+        return SearchHelper(key,dynamic_cast<InternalNode*>(current)->GetNextLevel(key));
     }
 }
 
@@ -191,3 +183,5 @@ bool BTree::Search(string key) const{
         return false;
     }   
 }
+
+

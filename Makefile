@@ -6,19 +6,20 @@ CXXFLAGS = -std=c++11 -Wall -Wextra -Wno-unused-parameter -Wno-unused-private-fi
 #CXXFLAGS = -std=c++11 -Wall -Wextra -Werror                                             
 
 
-BINARIES = main
+BINARIES = test01
 
 all: ${BINARIES}
 
 main: Graph.o Main.o
 	${CXX} $^ -o $@
 
-#test02: test02.o Student.o HashTable.o
-#	${CXX} $^ -o $@
+test01: BTree.o test.o
+	${CXX} $^ -o $@
 
 tests:${BINARIES}
-	./main
-#	./test02
+	./test01
+#	./main
+
 
 LEAKTESTS=test01
 
