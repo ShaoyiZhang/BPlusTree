@@ -1,5 +1,5 @@
 #include "BTree.h"
-
+#include <math.h>
 
 LeafNode(InternalNode* parent):Node(true),keys(NULL),next(NULL),previous(NULL){
     keys = new string[L];
@@ -66,7 +66,7 @@ void BTree::Insert(string name, int fileLocation){
 
 void LeafNode::SplitLeaf(){
     LeafNode* newLeaf = new LeafNode();
-    for (int i = L; i > L/2; i--){
+    for (int i = L; i >= ceil(L/2); i--){
         // copy latterHalf(index 2,3) to new leaf
         newLeaf.Add(keys[i], values[i]);
         this->keys[i]="BLANK";
@@ -81,29 +81,43 @@ void LeafNode::SplitLeaf(){
     // Add function automatically split parent if necessary
 }
 
-InternalNode::SplitNonLeaf(){
+void InternalNode::SplitNonLeaf(){
 
-    int middle = M/2+1;
+    int middle = ceil(M/2);
     int index = 0;
     InternalNode* newRoad = new InternalNode();
-    for (int i = middle+1; i<occupancy; i++){
+    for (int i = middle+1; i<=occupancy; i++){
         newRoad.keys[index] = this->keys[i];
         index++;
     }
     index = 0;
-    for (int i = middle+1; i<occupancy; i++){
+    for (int i = middle+1; i<=occupancy; i++){
         newRoad.children[index]=this->children[i];
         index++;
     }
     // finish copying, insert to parent
     // but if parent is root, things are differnt
-    if (this->parent == NULL){
-        SplitRoot();
-        return;
-    }
-    else
-        this->GetParent().Add(newRoad);
+    this->GetParent().Add(newRoad);
+    return;
 }
+
+void BTree::SplitRoot(){
+    InternalNode* latterHalf = new InternalNode();
+    int middle = ceil(M/2);
+    int index = 0;
+    // for now, occupancy = 5 = capacity = M
+    for (int i = middle; i<occupancy; i++){
+        latterHalf.keys[index] = this->keys[i];
+        index++;
+    }
+    index = 0;
+    for (int i = middle; i<=occupancy; i++){
+        latterHalf.children[index]=this->children[i];
+        index++;
+    }
+    return;
+}
+
 
 LeafNode::Add(string key, int value){
     int index = this->IndexOfKey(key);
@@ -128,7 +142,12 @@ InternalNode::Add(Node* child){
     this->children[index]=child;
     occupancy++;
     if (occupancy>=capacity){
-        SplitNonLeaf();
+        if (this->GetParent() == NULL){
+            SplitRoot();
+            return;
+        }
+        else
+            SplitNonLeaf();
     }
 }
 
