@@ -48,14 +48,14 @@ BTree::BTree(){
 }
 
 void BTree::Insert(string name, int fileLocation){
-    Node* aboveLeaf = InsertHelper(name,root);
-    LeafNoede* leaf = aboveLeaf->GetNextLevel();
-    int indexOfChild = aboveLeaf->IndexOfChild(name);
-    assert(indexOfChild<=M);
+    LeafNoede* leaf = SearchHelper(name,root);
+    InternalNode* parent = leaf->GetParent();
+    int indexOfChild = ->IndexOfChild(name);
+    assert(indexOfChild<M);
     if (leaf == NULL){
-        aboveLeaf[indexOfChild] = new LeafNode(name,fileLocation);
-        aboveLeaf[indexOfChild]->SetPrevious(aboveLeaf[indexOfChild-1]);
-        aboveLeaf[indexOfChild]->SetNext(NULL);
+        parent[indexOfChild] = new LeafNode(name,fileLocation);
+        parent[indexOfChild]->SetPrevious(parent[indexOfChild-1]);
+        parent[indexOfChild]->SetNext(NULL);
     }
     // leaf already exist, insert to leaf
     // check if need to split leaf
@@ -132,7 +132,7 @@ bool BTree::Search(string name) const{
         return false;
     }   
 }
-
+/*
 // return a pointer points to the LAST level of the Road Map
 // this level is right above the leaves
 // thus we can construct pointers between leaves
@@ -145,7 +145,7 @@ InternalNode* BTree::InsertHelper(string name, Node* current){
         else
             result = GetNextLevel(name);
     }
-}
+}*/
 
 /*    // if there's nothing in the BTree
     if (count==0){
