@@ -6,7 +6,7 @@ using namespace std;
 
 const int M = 5;   // num of max pointers to next level
 const int L = 3;   // num of max profiles 
-class InternalNode;
+
 class Node{
 private:
     string* keys;
