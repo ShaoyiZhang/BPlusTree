@@ -8,7 +8,8 @@ const int M = 5;   // num of max pointers to next level
 const int L = 3;   // num of max profiles 
 
 class Node{
-private:
+//private:
+public:
     string* keys;
     int* values;
     Node** children;
@@ -38,7 +39,7 @@ public:
     Node* Add(Node* child,Node* root);
     Node* Add(string key, int value, Node* root);
     ~Node();
-    void SplitNoneLeaf(Node* root);
+    Node* SplitNoneLeaf(Node* root);
     Node* SplitRoot(Node* root);
     Node* SplitLeaf(Node* root);
     void Print();
@@ -58,7 +59,8 @@ public:
 // BTree has a root node which is of type InternalNode
 // The children ptrs of root might be LeafNode AND InternalNode
 class BTree{
-private:
+//private:
+public:
    Node* root;
    int count;
 public:

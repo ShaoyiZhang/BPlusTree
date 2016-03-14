@@ -89,33 +89,12 @@ int Node::IndexOfChild(string key) const{
     return index;
 }
 
-void Node::SplitNoneLeaf(Node* root){
-
-    int middle = ceil(M/2);
-    int index = 0;
-    Node* newRoad = new Node(false);
-    for (int i = middle+1; i<=this->GetOccupancy(); i++){
-        newRoad->GetKeyAt(i) = this->GetKeyAt(i);
-        index++;
-    }
-    index = 0;
-    for (int i = middle+1; i<=this->GetOccupancy(); i++){
-        newRoad->children[index]=this->children[i];
-        index++;
-    }
-    // finish copying, insert to parent
-    // but if parent is root, things are differnt
-    this->GetParent()->Add(newRoad,root);
-    return;
-}
-
 // add node to noneleaf
 Node* Node::Add(Node* child,Node* root){
     // NoneLeafNode case
     int index = this->IndexOfChild(child->keys[0]);
     index ++;
     for (int i = occupancy-1; i >= index;i--){
-        //SetKeyAt(i+1,GetKeyAt(i));
         keys[i]=keys[i-1];
         children[i+1] = children[i];
     }
@@ -126,11 +105,11 @@ Node* Node::Add(Node* child,Node* root){
     // if the none leaf node is FULL
     // need to split
     if (occupancy>capacity){
-        //if (parent == NULL){
-        return SplitRoot(root);
-        //}
-        //else
-        //    return SplitNoneLeaf(root);
+        if (parent == NULL){
+            return SplitRoot(root);
+        }
+        else
+            return SplitNoneLeaf(root);
     }
     return NULL;
 }
@@ -159,8 +138,9 @@ Node* Node::SplitRoot(Node* root){
     Node* latterHalf = new Node(false);
     int middle = ceil(static_cast<double>(M)/2);
     int index = 0;
-    // for now, occupancy = 5 = capacity = M
+    // for now, occupancy = 6 = capacity = M
     // copy half of keys to new node
+    // key index 3,4 go to new node
     for (int i = middle; i<occupancy-1; i++){
         latterHalf->keys[index]=this->keys[i];
         keys[i] = "";
@@ -169,8 +149,11 @@ Node* Node::SplitRoot(Node* root){
     }
     index = 0;
     // copy half of children to new node
-    for (int i = middle; i<occupancy; i++){
+    // child index 3,4,5 go to new node
+    int origOccupancy = occupancy;
+    for (int i = middle; i<origOccupancy; i++){
         latterHalf->children[index]=this->children[i];
+        latterHalf->children[index]->SetParent(latterHalf);
         index++;
         children[i]=NULL;
         latterHalf->occupancy++;
@@ -192,6 +175,53 @@ Node* Node::SplitRoot(Node* root){
     return newRoot;
 }
 
+Node* Node::SplitNoneLeaf(Node* root){
+    Node* latterHalf = new Node(false);
+    int middle = ceil(static_cast<double>(M)/2);
+    int index = 0;
+    // for now, occupancy = 6 = capacity = M
+    // copy half of keys to new node
+    // key index 3,4 go to new node
+    for (int i = middle; i<occupancy-1; i++){
+        latterHalf->keys[index]=this->keys[i];
+        keys[i] = "";
+        index++;
+    }
+    index = 0;
+    // copy half of children to new node
+    // child index 3,4,5 go to new node
+    int origOccupancy = occupancy;
+    for (int i = middle; i<origOccupancy; i++){
+        latterHalf->children[index]=this->children[i];
+        latterHalf->children[index]->SetParent(latterHalf);
+        index++;
+        children[i]=NULL;
+        latterHalf->occupancy++;
+        this->occupancy--;
+    }
+    Node* temp = this->GetParent()->Add(latterHalf,root);
+    if (temp!=NULL)
+        root = temp;
+    return root;
+    /*
+    int middle = ceil(M/2);
+    int index = 0;
+    Node* newRoad = new Node(false);
+    for (int i = middle+1; i<=this->GetOccupancy(); i++){
+        newRoad->GetKeyAt(i) = this->GetKeyAt(i);
+        index++;
+    }
+    index = 0;
+    for (int i = middle+1; i<=this->GetOccupancy(); i++){
+        newRoad->children[index]=this->children[i];
+        index++;
+    }
+    // finish copying, insert to parent
+    // but if parent is root, things are differnt
+    this->GetParent()->Add(newRoad,root);
+    return ;*/
+}
+
 Node* Node::SplitLeaf(Node* root){
     Node* newLeaf = new Node(true);
     for (int i = L; i >= ceil(static_cast<double>(L)/2); i--){
@@ -202,16 +232,23 @@ Node* Node::SplitLeaf(Node* root){
         this->occupancy--;
         //newLeaf->occupancy++;
     }
+    // this->next might be 0x646576697265442f
+    // this->previous might be 0x65646f63582f0009
+    // should not happen since we initialize all nodes' next and previous to NULL at the first place
+    if (this->next!=NULL/*&&this->next->keys[0]!=""*/)
+        this->next->SetPrevious(newLeaf);
     newLeaf->next = this->next;
     newLeaf->parent = this->parent;
     newLeaf->previous = this;
     this->next = newLeaf;
     // insert new leaf to parent (which must be none-leaf)
+    // if this is not root
     if(this->parent != NULL){
         Node* temp = this->parent->Add(newLeaf,root);
-        if (temp)
+        if (temp!=NULL)
             root = temp;
     }
+    // current node is root
     else{
         Node* newRoot = new Node(false);
         Node* temp = root;

@@ -4,6 +4,7 @@
  *  Created on: Feb 11, 2016
  *      Author: omid
  */
+#include <assert.h>
 #include "BTree.h"
 #include <string>
 #include <sstream>
@@ -94,6 +95,7 @@ int main(int argc, char** argv)
         tree.PrintAll(tree.GetRoot());
         cout<<endl;
         tree.Insert("berserker", 678);
+        //previous wrong, fixed
         tree.PrintAll(tree.GetRoot());
         cout << tree.GetRoot()->GetOccupancy() << endl;
         cout<<endl;
@@ -116,18 +118,44 @@ int main(int argc, char** argv)
         tree.Insert("av",999);//split root
         tree.PrintAll(tree.GetRoot());
         cout<<endl;
+    // check split root status
+    assert(tree.GetRoot()->occupancy==2);
+    assert(tree.root->children[0]->occupancy == 3);
+    assert(tree.root->children[1]->occupancy == 3);
+    assert(tree.root->children[1]->parent == tree.root->children[0]->parent);
+    
         tree.Insert("tf", 11);
+    tree.PrintAll(tree.GetRoot());
+    cout<<endl;
         tree.Insert("tg", 12);
+    tree.PrintAll(tree.GetRoot());
+    cout<<endl;
         tree.Insert("th", 121);
+    tree.PrintAll(tree.GetRoot());
+    cout<<endl;
         tree.Insert("ti", 1313);
+    tree.PrintAll(tree.GetRoot());
+    cout<<endl;
         tree.Insert("tj",2134);
+    tree.PrintAll(tree.GetRoot());
+    cout<<endl;
         tree.Insert("tk", 12312);
         tree.PrintAll(tree.GetRoot());
         cout<<endl;
-        //tree.Insert("", <#int value#>)
+        //tree.Insert("", )
         cout << tree.GetRoot()->GetOccupancy() << endl;
-         
     
+//    assert(tree.root->children[0]->occupancy == 3);
+  tree.Insert("tl", 314);
+    tree.Insert("tm",2342);
+    tree.Insert("tn",3245);
+    tree.Insert("to",341212);
+    tree.Insert("tp",38942723);
+    tree.Insert("tr",23981);
+    tree.Insert("ak", 312);
+    tree.Insert("sb", 123);
+    tree.PrintAll(tree.GetRoot());
+    cout << tree.GetRoot()->GetOccupancy() << endl;
     /*
     string line;
     Graph* g = new Graph();
