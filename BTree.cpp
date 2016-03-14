@@ -329,7 +329,7 @@ bool BTree::Search(string key) const{
     if (result){
         for (int i = 0; i < result->GetOccupancy(); i++){
             if (result->GetKeyAt(i) == key){
-                cout << "Find!" << endl;
+	      cout << "Key: " << key << " Value: " << result->GetValueAt(i) << endl;
                 return true;
             }
         }

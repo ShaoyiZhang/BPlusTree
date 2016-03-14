@@ -82,8 +82,7 @@ int main(int argc, char** argv)
       
       GraphNode* added = new GraphNode(name);
       graph.insert(added);
-
-      tree.Insert(name, 1);
+      tree.Insert(name, tree.GetCount() * 53);
     }
     
     else if(userInput == "AddFriend"){
@@ -112,18 +111,23 @@ int main(int argc, char** argv)
       }
       padding(tempPath, tempOutPath);
       string line;
+      int value = 0;
       while(std::getline(f, line)){
 	vector<string> words = split(line, ',');
 	graph.insert(words);
+	tree.Insert(words[0], value);
+	cout << words[0] << " " << value << endl;
+	value += 53;
       }
-      
     }
     else if(userInput == "help"){
       cout << "PrintGraph" << endl;
       cout << "PrintTree" << endl;
       cout << "Initialize" << endl;
-      cout << "Insert [name] [age] [occupation]" << endl;
-      cout << "AddFriend [name1] [name2]" << endl;
+      cout << "Insert" << endl;
+      cout << "AddFriend" << endl;
+      cout << "PrintBetween" << endl;
+      cout << "PrintFriendInfo" << endl;
     }
     else if(userInput == "PrintBetween"){
       string lowerBound;
@@ -134,8 +138,17 @@ int main(int argc, char** argv)
       cin >> upperBound;
       tree.PrintBetween(lowerBound, upperBound);
     }
+
+    else if(userInput == "PrintFriendInfo"){
+      string name;
+      cout << "Enter name" << endl;
+      cin >> name;
+      for(GraphNode* temp = graph.find(name)->next; temp != NULL; temp = temp->next){
+	tree.Search(name);
+      }
+    }
     else{
-      cout << "Enter next command" << endl;
+      //cout << "Enter next command" << endl;
     }
     
     userInput = "";

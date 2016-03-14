@@ -46,7 +46,6 @@ Anthony,73,BAXTER,Andrew,Lucy,Jordan,Isabelle,Carter,Blake,Jonathan
 David,18,WAGONER,Adam,Charles,Owen,Joseph,Jeremiah,Stella
 Brayden,74,AVOWRY,Wyatt,Caroline,Noah,Lincoln,Hunter,Logan
 Alexis,78,CHRONOLOGIST,Lincoln,Asher,Lauren,Blake,Katherine,Piper
-Jeremiah,26,BILL POSTER,Kennedy,Michael,Jace,David,Isaac,Andrew,Carter,Alice,Jordan,Faith
 Blake,69,BEDDER,James,Michael,Anthony,Alexis,Lauren,Isabelle,Katherine,Piper
 Piper,74,BAWD,Caroline,James,Gianna,Alexis,Blake
 Jonathan,62,WANTCATCHER,Thomas,Adam,Michael,Logan,Anthony,Faith,Isabelle
