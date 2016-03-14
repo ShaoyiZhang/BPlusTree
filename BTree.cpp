@@ -110,32 +110,33 @@ void Node::SplitNoneLeaf(Node* root){
 }
 
 // add node to noneleaf
-void Node::Add(Node* child,Node* root){
+Node* Node::Add(Node* child,Node* root){
     // NoneLeafNode case
     int index = this->IndexOfChild(child->keys[0]);
     index ++;
     for (int i = occupancy-1; i >= index;i--){
         //SetKeyAt(i+1,GetKeyAt(i));
         keys[i]=keys[i-1];
-        children[i] = children[i-1];
+        children[i+1] = children[i];
     }
     this->children[index]=child;
+    child->SetParent(this);
     keys[index-1] = children[index]->GetKeyAt(0);
     occupancy++;
     // if the none leaf node is FULL
     // need to split
-    if (occupancy>=capacity){
-        if (parent == NULL){
-            SplitRoot(root);
-            return;
-        }
-        else
-            SplitNoneLeaf(root);
+    if (occupancy>capacity){
+        //if (parent == NULL){
+        return SplitRoot(root);
+        //}
+        //else
+        //    return SplitNoneLeaf(root);
     }
+    return NULL;
 }
 
 // Add key-value to Leaf
-void Node::Add(string key, int value, Node* root){
+Node* Node::Add(string key, int value, Node* root){
     int index = this->IndexOfKey(key);
     for (int i=this->occupancy-1;i>=index;i--){
         //SetKeyAt(i+1, GetKeyAt(i));
@@ -146,32 +147,52 @@ void Node::Add(string key, int value, Node* root){
     values[index]=value;
     occupancy ++;
     if (this->occupancy>this->capacity){
-        SplitLeaf(root);
+        Node* temp = SplitLeaf(root);
+        if (temp)
+            return temp;
     }
+    return NULL;
 }
 
 
-void Node::SplitRoot(Node* root){
+Node* Node::SplitRoot(Node* root){
     Node* latterHalf = new Node(false);
-    int middle = ceil(M/2);
+    int middle = ceil(static_cast<double>(M)/2);
     int index = 0;
     // for now, occupancy = 5 = capacity = M
     // copy half of keys to new node
-    for (int i = middle; i<occupancy; i++){
+    for (int i = middle; i<occupancy-1; i++){
         latterHalf->keys[index]=this->keys[i];
+        keys[i] = "";
         //latterHalf->SetKeyAt(index, this->GetKeyAt(i));
         index++;
     }
     index = 0;
     // copy half of children to new node
-    for (int i = middle; i<=GetOccupancy(); i++){
+    for (int i = middle; i<occupancy; i++){
         latterHalf->children[index]=this->children[i];
         index++;
+        children[i]=NULL;
+        latterHalf->occupancy++;
+        this->occupancy--;
     }
-    return;
+    Node* newRoot = new Node(false);
+    Node* temp = latterHalf;
+    while (!temp->IsLeaf()){
+        temp = latterHalf->GetChildren()[0];
+    }
+    // temp is leaf now
+    newRoot->SetKeyAt(0,temp->GetKeyAt(0));
+    newRoot->SetChildrenAt(0, this);
+    this->SetParent(newRoot);
+    newRoot->SetChildrenAt(1, latterHalf);
+    latterHalf->SetParent(newRoot);
+    newRoot->IncrOccupancy();
+    newRoot->IncrOccupancy();
+    return newRoot;
 }
 
-void Node::SplitLeaf(Node* root){
+Node* Node::SplitLeaf(Node* root){
     Node* newLeaf = new Node(true);
     for (int i = L; i >= ceil(static_cast<double>(L)/2); i--){
         // copy latterHalf(index 2,3) to new leaf
@@ -179,22 +200,28 @@ void Node::SplitLeaf(Node* root){
         keys[i] = "";
         values[i]=INT_MIN;
         this->occupancy--;
+        //newLeaf->occupancy++;
     }
     newLeaf->next = this->next;
     newLeaf->parent = this->parent;
     newLeaf->previous = this;
     this->next = newLeaf;
     // insert new leaf to parent (which must be none-leaf)
-    if(this->parent != NULL)
-        this->parent->Add(newLeaf,root);
+    if(this->parent != NULL){
+        Node* temp = this->parent->Add(newLeaf,root);
+        if (temp)
+            root = temp;
+    }
     else{
         Node* newRoot = new Node(false);
         Node* temp = root;
         root = newRoot;
         newRoot->SetChildrenAt(0, temp);
+        temp->SetParent(root);
         newRoot->IncrOccupancy();
         root->Add(newLeaf, this);
     }
+    return root;
     //cout << "splitleaf" << endl;
     // Add function automatically split parent if necessary
 }
@@ -211,28 +238,11 @@ void BTree::Insert(string key, int value){
     Node* parent = InsertHelper(key,root);
     Node* leaf = parent->GetNextLevel(key);
     int indexOfChild = parent->IndexOfChild(key);
-/*
-    if(count <= L){
-        count ++;
-        parent->Add(key, value, root);
-    }
-    else if(count == L+1){
-        count ++;
-        Node* newRoot = new Node(false, NULL);
-        string temp1 = root->GetKeyAt(0);
-        int temp2 = root->GetValueAt(0);
-        Node* front = root;
-        root = newRoot;
-        Insert(key, value);
-        Insert(temp1, temp2);
-        root->SetKeyAt(0, max(key, temp1));
-        count --;
-    }
- */
-    //assert(indexOfChild<M);
     if (parent->IsLeaf()){
         count ++;
-        parent->Add(key,value, root);
+        Node* tempRoot = parent->Add(key,value, root);
+        if (tempRoot!= NULL)
+            root = tempRoot;
     }
     else if (leaf == NULL){
         count ++;
@@ -258,7 +268,9 @@ void BTree::Insert(string key, int value){
     // check if need to split leaf
     else{
         count ++;
-        leaf->Add(key,value,this->GetRoot());
+        Node* temp = leaf->Add(key,value,this->GetRoot());
+        if (temp)
+            this->root = temp;
     }
 }
 
@@ -269,7 +281,9 @@ void BTree::Insert(string key, int value){
 Node* BTree::InsertHelper(string key, Node* current){
     Node* result = current;
     while(true){
-        if (result->GetParent()==NULL)
+        if (count<=3)
+            break;
+        if (result->GetChildren()[0]->IsLeaf() == true)
             break;/*
         if (!result->IsLeaf()){
             if (result->GetChildren()[0]){
@@ -309,18 +323,18 @@ bool BTree::Search(string key) const{
     }   
 }
 
-// void BTree::PrintAll(Node* root){
-//     if (root == NULL)
-//         return;
-//     else if (root->IsLeaf()){
-//         root->Print();
-//     }
-//     else{
-//         for(int i = 0; i < root->GetOccupancy(); i++)
-//             PrintAll(root->GetChildren()[i]);
-//     }
-// }
-
+void BTree::PrintAll(Node* root){
+    if (root == NULL)
+        return;
+    else if (root->IsLeaf()){
+         root->Print();
+    }
+    else{
+        for(int i = 0; i < root->GetOccupancy(); i++)
+            PrintAll(root->GetChildren()[i]);
+    }
+ }
+/*
 void BTree::PrintAll(Node* root){
     if(root == NULL)
         return;
@@ -333,7 +347,7 @@ void BTree::PrintAll(Node* root){
     }
     else
         PrintAll(root->GetChildren()[0]);
-}
+}*/
 
 void BTree::PrintAllKeys(Node *root){
     if(root == NULL)

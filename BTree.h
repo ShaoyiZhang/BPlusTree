@@ -35,12 +35,12 @@ public:
     void IncrOccupancy(){ occupancy++; };
     Node* GetNextLevel(string key) const;
     int IndexOfChild(string key) const;
-    void Add(Node* child,Node* root);
-    void Add(string key, int value, Node* root);
+    Node* Add(Node* child,Node* root);
+    Node* Add(string key, int value, Node* root);
     ~Node();
     void SplitNoneLeaf(Node* root);
-    void SplitRoot(Node* root);
-    void SplitLeaf(Node* root);
+    Node* SplitRoot(Node* root);
+    Node* SplitLeaf(Node* root);
     void Print();
     Node** GetChildren(){ return children; };
     void SetChildrenAt(int index, Node* child){ this->children[index] = child;};

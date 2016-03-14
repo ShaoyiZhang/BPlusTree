@@ -4,7 +4,7 @@
  *  Created on: Feb 11, 2016
  *      Author: omid
  */
-
+#include "BTree.h"
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -53,6 +53,7 @@ void padding(string inpath, string outpath){
 
 int main(int argc, char** argv)
 {
+    /*
   string inpath1 = "./FinalProjectTestCases/Generated1.txt";
 	ifstream f1;
 	f1.open(inpath1, ios::in);
@@ -71,9 +72,63 @@ int main(int argc, char** argv)
 	if(!f1 or !f2 or !f3) cerr << "File not found." << endl;
 	else
 	{
+     
     padding(inpath1, outpath1);
     padding(inpath2, outpath2);
     padding(inpath3, outpath3);
+     */
+        BTree tree = BTree();
+        tree.Insert("saber",123);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("lancer", 234);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("caster", 345);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("archer", 456);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("assassin", 567);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("berserker", 678);
+        tree.PrintAll(tree.GetRoot());
+        cout << tree.GetRoot()->GetOccupancy() << endl;
+        cout<<endl;
+        tree.Insert("rider", 789);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("teacher", 910);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("gaotian", 1789);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("hexiaohe", 111);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+    
+        tree.Insert("az",11121);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("av",999);//split root
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        tree.Insert("tf", 11);
+        tree.Insert("tg", 12);
+        tree.Insert("th", 121);
+        tree.Insert("ti", 1313);
+        tree.Insert("tj",2134);
+        tree.Insert("tk", 12312);
+        tree.PrintAll(tree.GetRoot());
+        cout<<endl;
+        //tree.Insert("", <#int value#>)
+        cout << tree.GetRoot()->GetOccupancy() << endl;
+         
+    
+    /*
     string line;
     Graph* g = new Graph();
     int count = 0;
@@ -81,11 +136,11 @@ int main(int argc, char** argv)
 		{
 			vector<string> words = split(line, ',');
 			cout << words.size() << endl;
-      g->insert(words);
-      count ++;
-      g->printAll();
+            g->insert(words);
+            count ++;
 			// ... TO DO
 		}
-	}
+     */
+//	}
 	return 0;
 }

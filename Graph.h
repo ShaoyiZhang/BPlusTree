@@ -3,26 +3,26 @@
 
 using namespace std;
 
-class Node{
+class GraphNode{
  public:
   string name;
-  Node* next;
-  Node(){name = ""; next = NULL;}
-  Node(string name){this->name = name; next = NULL;}
-  Node(string name, Node* next){this->name = name; this->next = next;}
+  GraphNode* next;
+  GraphNode(){name = ""; next = NULL;}
+  GraphNode(string name){this->name = name; next = NULL;}
+  GraphNode(string name, GraphNode* next){this->name = name; this->next = next;}
 };
 
 class Graph{
  private:
   static const int TABLE_SIZE = 211;
-  Node** table;
+  GraphNode** table;
  public:
   Graph();
   int hash(string input, int seed=0);
   pair<int, bool> helpInsert(string name);
-  void insert(Node* node);
+  void insert(GraphNode* node);
   void insert(vector<string> input);
   void insert(string name);
-  Node* find(string name);
+  GraphNode* find(string name);
   void printAll();
 };

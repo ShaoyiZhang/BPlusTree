@@ -1,7 +1,7 @@
 #include "Graph.h"
 
 Graph::Graph(){
-  table = new Node* [TABLE_SIZE];
+  table = new GraphNode* [TABLE_SIZE];
   for(int i = 0; i < TABLE_SIZE; i++){
     table[i] = NULL;
   }
@@ -31,7 +31,7 @@ pair<int, bool> Graph::helpInsert(string name){
   return result;
 }
 
-void Graph::insert(Node* node){
+void Graph::insert(GraphNode* node){
   pair<int, bool> index = helpInsert(node->name);
   if (!index.second)
     table[index.first] = node;
@@ -41,7 +41,7 @@ void Graph::insert(string name){
   pair<int, bool> index = helpInsert(name);
 
   if (!index.second){
-    Node* node = new Node(name);
+    GraphNode* node = new GraphNode(name);
     table[index.first] = node;
   }
 
@@ -52,25 +52,25 @@ void Graph::insert(vector<string> input){
   if (length == 0)
     return;
 
-  Node* init = new Node(input[0]);
+  GraphNode* init = new GraphNode(input[0]);
   insert(init);
-  Node* last = init;
+  GraphNode* last = init;
 
   if(length < 4)
     return;
 
   for(int i = 3; i < length; i++){
-    Node* tmpNode = new Node(input[i]);
-    last->next = tmpNode;
+    GraphNode* tmpGraphNode = new GraphNode(input[i]);
+    last->next = tmpGraphNode;
     last = last->next;
   }
 }
 
-Node* Graph::find(string name){
+GraphNode* Graph::find(string name){
   pair<int, bool> index = helpInsert(name);
 
   if(index.second){
-    Node* temp = table[index.first];
+    GraphNode* temp = table[index.first];
     return temp;
   }
   else
@@ -80,7 +80,7 @@ Node* Graph::find(string name){
 void Graph::printAll(){
   for(int i = 0; i < TABLE_SIZE; i++){
     if(table[i]){
-      Node* temp = table[i];
+      GraphNode* temp = table[i];
       while(temp){
         cout << temp->name << " ";
         temp = temp->next;
