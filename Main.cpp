@@ -54,7 +54,98 @@ void padding(string inpath, string outpath){
 
 int main(int argc, char** argv)
 {
-  
+  BTree tree = BTree();
+  Graph graph = Graph();
+  string userInput;
+  cout << "Enter your command; input 'help' for help" << endl;
+  while(1){
+    cin >> userInput;
+    //cout << userInput << endl;
+    
+    if(userInput == "PrintGraph"){
+      graph.printAll();
+    }
+    else if(userInput == "PrintTree"){
+      tree.PrintAll();
+    }
+    
+    else if(userInput == "Insert"){
+      cout << "Input name" << endl;
+      string name;
+      cin >> name;
+      int age;
+      cout << "Input age" << endl;
+      cin >> age;
+      string occupation;
+      cout << "Input occupation" << endl;
+      cin >> occupation;
+      
+      GraphNode* added = new GraphNode(name);
+      graph.insert(added);
+
+      tree.Insert(name, 1);
+    }
+    
+    else if(userInput == "AddFriend"){
+      cout << "Input first person" << endl;
+      string firstone;
+      cin >> firstone;
+      
+      cout << "Input second person" << endl;
+      string secondone;
+      cin >> secondone;
+
+      graph.find(firstone)->addFriend(secondone);
+      graph.find(secondone)->addFriend(firstone);
+    }
+    
+    else if(userInput == "Initialize"){
+      cout << "input the path" << endl;
+      string tempPath;
+      cin >> tempPath;
+      ifstream f;
+      string tempOutPath = "./FinalProjectTestCases/padding0.txt";
+      f.open(tempPath, ios::in);
+      if(!f){
+	cerr << "File not found." << endl;
+	continue;
+      }
+      padding(tempPath, tempOutPath);
+      string line;
+      while(std::getline(f, line)){
+	vector<string> words = split(line, ',');
+	graph.insert(words);
+      }
+      
+    }
+    else if(userInput == "help"){
+      cout << "PrintGraph" << endl;
+      cout << "PrintTree" << endl;
+      cout << "Initialize" << endl;
+      cout << "Insert [name] [age] [occupation]" << endl;
+      cout << "AddFriend [name1] [name2]" << endl;
+    }
+    else if(userInput == "PrintBetween"){
+      string lowerBound;
+      string upperBound;
+      cout << "input your lower bound" << endl;
+      cin >> lowerBound;
+      cout << "input your upper bound" << endl;
+      cin >> upperBound;
+      tree.PrintBetween(lowerBound, upperBound);
+    }
+    else{
+      cout << "Enter next command" << endl;
+    }
+    
+    userInput = "";
+    //cin.clear();
+  }
+  return 0;
+}
+    
+    /*
+  }
   string inpath1 = "./FinalProjectTestCases/Generated1.txt";
   ifstream f1;
   f1.open(inpath1, ios::in);
@@ -98,5 +189,4 @@ int main(int argc, char** argv)
 		}
 		g->printAll();
 	}
-	return 0;
-}
+    */

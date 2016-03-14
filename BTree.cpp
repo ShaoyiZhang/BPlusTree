@@ -343,7 +343,7 @@ bool BTree::Search(string key) const{
     }
 }
 
-void BTree::PrintAll(Node* root){
+/*void BTree::PrintAll(Node* root){
     if (root == NULL)
         return;
     else if (root->IsLeaf()){
@@ -354,7 +354,8 @@ void BTree::PrintAll(Node* root){
             PrintAll(root->GetChildren()[i]);
     }
  }
-/*
+*/
+
 void BTree::PrintAll(Node* root){
     if(root == NULL)
         return;
@@ -367,7 +368,7 @@ void BTree::PrintAll(Node* root){
     }
     else
         PrintAll(root->GetChildren()[0]);
-}*/
+}
 
 void BTree::PrintAllKeys(Node *root){
     if(root == NULL)
@@ -390,18 +391,20 @@ void BTree::PrintBetween(string start, string end) {
         // print valid output in Node* start
         for (int i = 0; i<begin->GetOccupancy(); i++){
             if (begin->GetKeyAt(i)>=start)
-                cout<< "Key: " << begin->GetKeyAt(i) << " Value:" << begin->GetValueAt(i) << endl;
+	      cout<< "Key: " << begin->GetKeyAt(i) << " Value:" << begin->GetValueAt(i) << endl;
         }
-        Node* current = begin->GetNext();
-        // loop to print all data until Node* ending
-        while (current!=NULL && current!=ending) {
+	if(begin != ending){
+	  Node* current = begin->GetNext();
+	  // loop to print all data until Node* ending
+	  while (current!=NULL && current!=ending) {
             current->Print();
             current=current->GetNext();
-        }
+	  }
         // print valid output in Node* ending
-        for (int i = 0; i<begin->GetOccupancy(); i++){
+	  for (int i = 0; i<begin->GetOccupancy(); i++){
             if (ending->GetKeyAt(i)<=end && ending->GetKeyAt(i)!="")
-                cout<<"Key: " << ending->GetKeyAt(i)<<" Value: "<< ending->GetValueAt(i) << endl;
+	      cout<<"Key: " << ending->GetKeyAt(i)<<" Value: "<< ending->GetValueAt(i) << endl;
+	  }
         }
     }
 }
