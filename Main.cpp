@@ -123,7 +123,7 @@ int main(int argc, char** argv)
     assert(tree.root->children[0]->occupancy == 3);
     assert(tree.root->children[1]->occupancy == 3);
     assert(tree.root->children[1]->parent == tree.root->children[0]->parent);
-  /*
+  
         tree.Insert("tf", 11);
     tree.PrintAll(tree.GetRoot());
     cout<<endl;
@@ -155,13 +155,13 @@ int main(int argc, char** argv)
     tree.Insert("ak", 312);
     tree.Insert("sb", 123);
     tree.PrintAll(tree.GetRoot());
-    cout << tree.GetRoot()->GetOccupancy() << endl;*/
+    cout << tree.GetRoot()->GetOccupancy() << endl;
     tree.Search("to");
     tree.Search("ts");
     tree.Search("aa");
     tree.Search("ak");
     tree.Search("gaotian");
-    //tree.PrintBetween("tk", "tp");
+    tree.PrintBetween("tk", "tp");
     /*
     string line;
     Graph* g = new Graph();

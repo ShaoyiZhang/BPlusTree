@@ -337,12 +337,21 @@ Node* BTree::InsertHelper(string key, Node* current){
 // given a key and a node, search for the key
 // return a pointer to a leaf node that might contains record
 Node* BTree::SearchHelper(string key, Node* current) const{
-    if (current == NULL)
-        return NULL;
-    else if (current->IsLeaf())
+    if (current->IsLeaf())
         return current;
-    else
-        return SearchHelper(key,current->GetNextLevel(key));
+    return SearchHelper(key, current->GetNextLevel(key));
+    /*
+Function: tree_search (k, node)
+    if node is a leaf then
+        return node;
+    switch k do
+        case k < k_0
+        return tree_search(k, p_0);
+case k_i ≤ k < k_{i+1}
+    return tree_search(k, p_{i+1});
+case k_d ≤ k
+    return tree_search(k, p_{d+1});
+ */
 }
 
 // calls search helper to look for key
@@ -363,7 +372,7 @@ bool BTree::Search(string key) const{
     else{
         cout << "Not find!" << endl;
         return false;
-    }   
+    }
 }
 
 void BTree::PrintAll(Node* root){
