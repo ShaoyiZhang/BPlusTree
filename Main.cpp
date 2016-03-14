@@ -119,10 +119,7 @@ int main(int argc, char** argv)
         tree.PrintAll(tree.GetRoot());
         cout<<endl;
     // check split root status
-    assert(tree.GetRoot()->occupancy==2);
-    assert(tree.root->children[0]->occupancy == 3);
-    assert(tree.root->children[1]->occupancy == 3);
-    assert(tree.root->children[1]->parent == tree.root->children[0]->parent);
+
   
         tree.Insert("tf", 11);
     tree.PrintAll(tree.GetRoot());
@@ -162,6 +159,10 @@ int main(int argc, char** argv)
     tree.Search("ak");
     tree.Search("gaotian");
     tree.PrintBetween("tk", "tp");
+    cout << endl;
+    tree.PrintBetween("aa", "tj");
+    cout << endl;
+    tree.PrintBetween("hexiaohe", "gaotian");
     /*
     string line;
     Graph* g = new Graph();

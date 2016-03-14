@@ -8,8 +8,7 @@ const int M = 5;   // num of max pointers to next level
 const int L = 3;   // num of max profiles 
 
 class Node{
-//private:
-public:
+private:
     string* keys;
     int* values;
     Node** children;
@@ -59,8 +58,7 @@ public:
 // BTree has a root node which is of type InternalNode
 // The children ptrs of root might be LeafNode AND InternalNode
 class BTree{
-//private:
-public:
+private:
    Node* root;
    int count;
 public:

@@ -413,21 +413,23 @@ void BTree::PrintAllKeys(Node *root){
 void BTree::PrintBetween(string start, string end) {
     Node* begin = SearchHelper(start, root);
     Node* ending = SearchHelper(end, root);
+    //std::ostream oss;
     if (begin!=NULL){
         // print valid output in Node* start
         for (int i = 0; i<begin->GetOccupancy(); i++){
             if (begin->GetKeyAt(i)>=start)
-            cout<< begin->GetKeyAt(i);
+                cout<< "Key: " << begin->GetKeyAt(i) << " Value:" << begin->GetValueAt(i) << endl;
         }
         Node* current = begin->GetNext();
         // loop to print all data until Node* ending
         while (current!=NULL && current!=ending) {
             current->Print();
+            current=current->GetNext();
         }
         // print valid output in Node* ending
         for (int i = 0; i<begin->GetOccupancy(); i++){
-            if (ending->GetKeyAt(i)<end)
-                cout<< ending->GetKeyAt(i);
+            if (ending->GetKeyAt(i)<=end && ending->GetKeyAt(i)!="")
+                cout<<"Key: " << ending->GetKeyAt(i)<<" Value: "<< ending->GetValueAt(i) << endl;
         }
     }
 }
