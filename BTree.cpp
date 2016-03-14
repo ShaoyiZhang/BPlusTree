@@ -185,7 +185,16 @@ void Node::SplitLeaf(Node* root){
     newLeaf->previous = this;
     this->next = newLeaf;
     // insert new leaf to parent (which must be none-leaf)
-    this->parent->Add(newLeaf,root);
+    if(this->parent != NULL)
+        this->parent->Add(newLeaf,root);
+    else{
+        Node* newRoot = new Node(false);
+        Node* temp = root;
+        root = newRoot;
+        newRoot->SetChildrenAt(0, temp);
+        newRoot->IncrOccupancy();
+        root->Add(newLeaf, this);
+    }
     //cout << "splitleaf" << endl;
     // Add function automatically split parent if necessary
 }
@@ -202,22 +211,29 @@ void BTree::Insert(string key, int value){
     Node* parent = InsertHelper(key,root);
     Node* leaf = parent->GetNextLevel(key);
     int indexOfChild = parent->IndexOfChild(key);
-    if(count == 0){
+/*
+    if(count <= L){
         count ++;
         parent->Add(key, value, root);
     }
-    else if(count == 1){
+    else if(count == L+1){
         count ++;
         Node* newRoot = new Node(false, NULL);
         string temp1 = root->GetKeyAt(0);
         int temp2 = root->GetValueAt(0);
+        Node* front = root;
         root = newRoot;
         Insert(key, value);
         Insert(temp1, temp2);
         root->SetKeyAt(0, max(key, temp1));
         count --;
     }
+ */
     //assert(indexOfChild<M);
+    if (parent->IsLeaf()){
+        count ++;
+        parent->Add(key,value, root);
+    }
     else if (leaf == NULL){
         count ++;
         Node* newLeaf = new Node(true,parent);
@@ -317,4 +333,13 @@ void BTree::PrintAll(Node* root){
     }
     else
         PrintAll(root->GetChildren()[0]);
+}
+
+void BTree::PrintAllKeys(Node *root){
+    if(root == NULL)
+        return;
+    root->PrintAllKeys();
+    if(!root->IsLeaf())
+        for(int i = 0; i < M; i++)
+            PrintAllKeys(root->GetChildren()[i]);
 }

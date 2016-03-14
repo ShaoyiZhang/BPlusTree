@@ -43,10 +43,16 @@ public:
     void SplitLeaf(Node* root);
     void Print();
     Node** GetChildren(){ return children; };
+    void SetChildrenAt(int index, Node* child){ this->children[index] = child;};
     Node* GetNext(){ return next; };
     Node* GetPrevious(){ return previous; };
     void SetNext(Node* next){ this->next = next; };
     void SetPrevious(Node* previous){ this->previous = previous; };
+    void PrintAllKeys(){
+        for(int i = 0; i < occupancy-1; i++)
+            cout << keys[i];
+        cout << endl;
+    };
 };
 
 // BTree has a root node which is of type InternalNode
@@ -65,6 +71,7 @@ public:
     Node* InsertHelper(string key, Node* current);
     void PrintAll(){ PrintAll(root); };
     void PrintAll(Node* root);
+    void PrintAllKeys(Node* root);
 };
 
 #endif
