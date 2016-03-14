@@ -81,7 +81,7 @@ Node* Node::GetNextLevel(string key) const{
 // return the index of the pointer which lead us to next level
 int Node::IndexOfChild(string key) const{
     int index = 0;
-    while (index < occupancy && key >= keys[index]){
+    while (index < occupancy-1 && key >= keys[index]){
         //cout << "capacity"<<this->GetCapcity()<<endl;
         index++;
     }
@@ -116,10 +116,11 @@ void Node::Add(Node* child,Node* root){
     index ++;
     for (int i = occupancy-1; i >= index;i--){
         //SetKeyAt(i+1,GetKeyAt(i));
-        keys[i+1]=keys[i];
-        children[i+1] = children[i];
+        keys[i]=keys[i-1];
+        children[i] = children[i-1];
     }
     this->children[index]=child;
+    keys[index-1] = children[index]->GetKeyAt(0);
     occupancy++;
     // if the none leaf node is FULL
     // need to split
