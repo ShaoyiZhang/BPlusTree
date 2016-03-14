@@ -203,23 +203,6 @@ Node* Node::SplitNoneLeaf(Node* root){
     if (temp!=NULL)
         root = temp;
     return root;
-    /*
-    int middle = ceil(M/2);
-    int index = 0;
-    Node* newRoad = new Node(false);
-    for (int i = middle+1; i<=this->GetOccupancy(); i++){
-        newRoad->GetKeyAt(i) = this->GetKeyAt(i);
-        index++;
-    }
-    index = 0;
-    for (int i = middle+1; i<=this->GetOccupancy(); i++){
-        newRoad->children[index]=this->children[i];
-        index++;
-    }
-    // finish copying, insert to parent
-    // but if parent is root, things are differnt
-    this->GetParent()->Add(newRoad,root);
-    return ;*/
 }
 
 Node* Node::SplitLeaf(Node* root){
@@ -230,7 +213,6 @@ Node* Node::SplitLeaf(Node* root){
         keys[i] = "";
         values[i]=INT_MIN;
         this->occupancy--;
-        //newLeaf->occupancy++;
     }
     // this->next might be 0x646576697265442f
     // this->previous might be 0x65646f63582f0009
@@ -259,7 +241,6 @@ Node* Node::SplitLeaf(Node* root){
         root->Add(newLeaf, this);
     }
     return root;
-    //cout << "splitleaf" << endl;
     // Add function automatically split parent if necessary
 }
 
@@ -297,7 +278,6 @@ void BTree::Insert(string key, int value){
             newLeaf->GetPrevious()->SetNext(newLeaf);
         }
         newLeaf->SetNext(NULL);
-        //newLeaf->SetKeyAt(indexOfChild, key);
         newLeaf->IncrOccupancy();
         parent->IncrOccupancy();
     }
@@ -340,18 +320,6 @@ Node* BTree::SearchHelper(string key, Node* current) const{
     if (current->IsLeaf())
         return current;
     return SearchHelper(key, current->GetNextLevel(key));
-    /*
-Function: tree_search (k, node)
-    if node is a leaf then
-        return node;
-    switch k do
-        case k < k_0
-        return tree_search(k, p_0);
-case k_i ≤ k < k_{i+1}
-    return tree_search(k, p_{i+1});
-case k_d ≤ k
-    return tree_search(k, p_{d+1});
- */
 }
 
 // calls search helper to look for key
