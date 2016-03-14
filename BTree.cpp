@@ -4,18 +4,22 @@
 #include <climits>
 Node::Node(bool isLeaf):keys(NULL),values(NULL),children(NULL),parent(NULL),isLeaf(isLeaf),occupancy(0),capacity(0){
     if (isLeaf==true){
-        keys = new string[L]; 
-        values = new int[L];
-        for(int i = 0; i < L; i++)
+        keys = new string[L+1];
+        values = new int[L+1];
+        for(int i = 0; i < L; i++){
             values[i] = INT_MIN;
+            keys[i] = "";
+        }
         capacity = L;
     } 
     else{
         keys = new string[M];
         children = new Node*[M+1];
-        for (int i = 0; i < M+1; i++){
+        for (int i = 0; i < M; i++){
             children[i]=NULL;
+            keys[i] = "";
         }
+        children[M] = NULL;
         capacity = M;
     }
 }
@@ -23,19 +27,23 @@ Node::Node(bool isLeaf):keys(NULL),values(NULL),children(NULL),parent(NULL),isLe
 Node::Node(bool isLeaf, Node* parent):keys(NULL),values(NULL),children(NULL),parent(NULL),isLeaf(isLeaf),occupancy(0),capacity(0){
     this->parent = parent;    
     if (isLeaf==true){
-        keys = new string[L]; 
-        values = new int[L];
-        for(int i = 0; i < L; i++)
+        keys = new string[L+1];
+        values = new int[L+1];
+        for(int i = 0; i < L; i++){
             values[i] = INT_MIN;
+            keys[i] = "";
+        }
         
         capacity = L;
     } 
     else{
         keys = new string[M];
         children = new Node*[M+1];
-        for (int i = 0; i < M+1; i++){
+        for (int i = 0; i < M; i++){
             children[i]=NULL;
+            keys[i] = "";
         }
+        children[M] = NULL;
         capacity = M;   
     }
 }
@@ -53,7 +61,7 @@ Node::~Node(){
 // return the index of a given key in the keys array
 // if name is NOT present in the array, return -1
 int Node::IndexOfKey(string key) const{
-    int index = -1;
+    int index = 0;
     for (int i = 0; i < occupancy; i++){
         if (key>=keys[i])
             index++;
@@ -105,6 +113,7 @@ void Node::SplitNoneLeaf(Node* root){
 void Node::Add(Node* child,Node* root){
     // NoneLeafNode case
     int index = this->IndexOfChild(child->keys[0]);
+    index ++;
     for (int i = occupancy-1; i >= index;i--){
         //SetKeyAt(i+1,GetKeyAt(i));
         keys[i+1]=keys[i];
@@ -127,23 +136,17 @@ void Node::Add(Node* child,Node* root){
 // Add key-value to Leaf
 void Node::Add(string key, int value, Node* root){
     int index = this->IndexOfKey(key);
-    if(index == -1){
-        keys[0] = key;
-        values[0] = value;
+    for (int i=this->occupancy-1;i>=index;i--){
+        //SetKeyAt(i+1, GetKeyAt(i));
+        keys[i+1]=keys[i];
+        values[i+1] = values[i];
     }
-    else{
-        for (int i=this->occupancy-1;i>=index;i--){
-            //SetKeyAt(i+1, GetKeyAt(i));
-            keys[i+1]=keys[i];
-            values[i+1] = values[i];
-        }
-        SetKeyAt(index, key);
-        values[index]=value;
-        if (this->occupancy>=this->capacity){
-            SplitLeaf(root);
-        }
+    SetKeyAt(index, key);
+    values[index]=value;
+    occupancy ++;
+    if (this->occupancy>this->capacity){
+        SplitLeaf(root);
     }
-    occupancy++;
 }
 
 
@@ -169,17 +172,20 @@ void Node::SplitRoot(Node* root){
 
 void Node::SplitLeaf(Node* root){
     Node* newLeaf = new Node(true);
-    for (int i = L; i >= ceil(L/2); i--){
+    for (int i = L; i >= ceil(static_cast<double>(L)/2); i--){
         // copy latterHalf(index 2,3) to new leaf
         newLeaf->Add(keys[i], values[i],root);
         keys[i] = "";
-        values[i]=-2147483646;
-        newLeaf->next = this->next;
-        newLeaf->parent = this->parent;
-        this->next = newLeaf;
+        values[i]=INT_MIN;
+        this->occupancy--;
     }
-    // insert new leaf to parent (whichi must be none-leaf)
+    newLeaf->next = this->next;
+    newLeaf->parent = this->parent;
+    newLeaf->previous = this;
+    this->next = newLeaf;
+    // insert new leaf to parent (which must be none-leaf)
     this->parent->Add(newLeaf,root);
+    //cout << "splitleaf" << endl;
     // Add function automatically split parent if necessary
 }
 
@@ -207,6 +213,7 @@ void BTree::Insert(string key, int value){
         root = newRoot;
         Insert(key, value);
         Insert(temp1, temp2);
+        root->SetKeyAt(0, max(key, temp1));
         count --;
     }
     //assert(indexOfChild<M);
@@ -226,7 +233,7 @@ void BTree::Insert(string key, int value){
             newLeaf->GetPrevious()->SetNext(newLeaf);
         }
         newLeaf->SetNext(NULL);
-        newLeaf->SetKeyAt(indexOfChild, key);
+        //newLeaf->SetKeyAt(indexOfChild, key);
         newLeaf->IncrOccupancy();
         parent->IncrOccupancy();
     }
@@ -285,14 +292,28 @@ bool BTree::Search(string key) const{
     }   
 }
 
+// void BTree::PrintAll(Node* root){
+//     if (root == NULL)
+//         return;
+//     else if (root->IsLeaf()){
+//         root->Print();
+//     }
+//     else{
+//         for(int i = 0; i < root->GetOccupancy(); i++)
+//             PrintAll(root->GetChildren()[i]);
+//     }
+// }
+
 void BTree::PrintAll(Node* root){
-    if (root == NULL)
+    if(root == NULL)
         return;
-    else if (root->IsLeaf()){
+    if(root->IsLeaf()){
+        while(root->GetNext() != NULL){
+            root->Print();
+            root = root->GetNext();
+        }
         root->Print();
     }
-    else{
-        for(int i = 0; i < root->GetOccupancy(); i++)
-            PrintAll(root->GetChildren()[i]);
-    }
+    else
+        PrintAll(root->GetChildren()[0]);
 }
