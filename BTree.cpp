@@ -341,17 +341,23 @@ Node* BTree::SearchHelper(string key, Node* current) const{
         return NULL;
     else if (current->IsLeaf())
         return current;
-    else{
+    else
         return SearchHelper(key,current->GetNextLevel(key));
-    }
 }
 
 // calls search helper to look for key
 bool BTree::Search(string key) const{
     Node* result = SearchHelper(key,root);
+    // result must be a leaf node or NULL
     if (result){
-        cout << "Find!" << endl;
-        return true;
+        for (int i = 0; i < result->GetOccupancy(); i++){
+            if (result->GetKeyAt(i) == key){
+                cout << "Find!" << endl;
+                return true;
+            }
+        }
+        cout << "Not find!" << endl;
+        return false;
     }
     // if result == NULL
     else{
@@ -394,3 +400,29 @@ void BTree::PrintAllKeys(Node *root){
         for(int i = 0; i < M; i++)
             PrintAllKeys(root->GetChildren()[i]);
 }
+
+void BTree::PrintBetween(string start, string end) {
+    Node* begin = SearchHelper(start, root);
+    Node* ending = SearchHelper(end, root);
+    if (begin!=NULL){
+        // print valid output in Node* start
+        for (int i = 0; i<begin->GetOccupancy(); i++){
+            if (begin->GetKeyAt(i)>=start)
+            cout<< begin->GetKeyAt(i);
+        }
+        Node* current = begin->GetNext();
+        // loop to print all data until Node* ending
+        while (current!=NULL && current!=ending) {
+            current->Print();
+        }
+        // print valid output in Node* ending
+        for (int i = 0; i<begin->GetOccupancy(); i++){
+            if (ending->GetKeyAt(i)<end)
+                cout<< ending->GetKeyAt(i);
+        }
+    }
+}
+
+
+
+

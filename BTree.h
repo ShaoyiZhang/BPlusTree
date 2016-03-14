@@ -74,6 +74,7 @@ public:
     void PrintAll(){ PrintAll(root); };
     void PrintAll(Node* root);
     void PrintAllKeys(Node* root);
+    void PrintBetween(string start, string end);
 };
 
 #endif
