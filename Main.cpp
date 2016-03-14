@@ -54,6 +54,31 @@ void padding(string inpath, string outpath){
 
 int main(int argc, char** argv)
 {
+        string inpath1 = "./FinalProjectTestCases/Generated1.txt";
+        string outpath1 = "./FinalProjectTestCases/padding1.txt";
+        padding(inpath1, outpath1);
+        FILE* p1;
+        p1=fopen("./FinalProjectTestCases/padding1.txt","r");
+        int charSize = sizeof(char);
+        int index = 0;
+        fseek (p1 , index , SEEK_SET);
+        size_t fileSize = ftell (p1);
+        char name[21];
+        fread(name,charSize,20,p1);
+        printf("%s\n", name);
+        
+        char age[4];
+        fseek(p1, index+20, SEEK_SET);
+        fread(age, charSize, 3, p1);
+        printf("%s\n", age);
+        
+        char occup[21];
+        fseek(p1, index+23, SEEK_SET);
+        fread(occup, charSize, 30, p1);
+        printf("%s\n", occup);
+        
+        fclose(p1);
+        
   BTree tree = BTree();
   Graph graph = Graph();
   string userInput;
