@@ -10,6 +10,7 @@ class GraphNode{
   GraphNode(){name = ""; next = NULL;}
   GraphNode(string name){this->name = name; next = NULL;}
   GraphNode(string name, GraphNode* next){this->name = name; this->next = next;}
+  void addFriend(string input);
 };
 
 class Graph{

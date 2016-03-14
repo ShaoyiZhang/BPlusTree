@@ -54,19 +54,23 @@ void padding(string inpath, string outpath){
 
 int main(int argc, char** argv)
 {
-
+  
   string inpath1 = "./FinalProjectTestCases/Generated1.txt";
-	ifstream f1;
-	f1.open(inpath1, ios::in);
-
+  ifstream f1;
+  f1.open(inpath1, ios::in);
+  
   string inpath2 = "./FinalProjectTestCases/Generated2.txt";
-	ifstream f2;
-	f2.open(inpath2, ios::in);
-
+  ifstream f2;
+  f2.open(inpath2, ios::in);
+  
   string inpath3 = "./FinalProjectTestCases/Generated3.txt";
-	ifstream f3;
-	f3.open(inpath3, ios::in);
+  ifstream f3;
+  f3.open(inpath3, ios::in);
 
+  string inpath4 = "./FinalProjectTestCases/Test1.txt";
+  ifstream f4;
+  f4.open(inpath4, ios::in);
+  
   string outpath1 = "./FinalProjectTestCases/padding1.txt";
   string outpath2 = "./FinalProjectTestCases/padding2.txt";
   string outpath3 = "./FinalProjectTestCases/padding3.txt";
@@ -84,15 +88,15 @@ int main(int argc, char** argv)
     string line;
     Graph* g = new Graph();
     int count = 0;
-		while(std::getline(f1, line))
+		while(std::getline(f4, line))
 		{
 			vector<string> words = split(line, ',');
 			cout << words.size() << endl;
-            g->insert(words);
-            count ++;
+			g->insert(words);
+			count ++;
 			// ... TO DO
 		}
-
+		g->printAll();
 	}
 	return 0;
 }

@@ -1,5 +1,16 @@
 #include "Graph.h"
 
+void GraphNode::addFriend(string input){
+  GraphNode* temp = this;
+  while(temp->next){
+    if(input == temp->name)
+      return;
+    temp = temp->next;
+  }
+  GraphNode* newFriend = new GraphNode(input);
+  temp->next = newFriend;
+}
+
 Graph::Graph(){
   table = new GraphNode* [TABLE_SIZE];
   for(int i = 0; i < TABLE_SIZE; i++){
@@ -63,6 +74,10 @@ void Graph::insert(vector<string> input){
     GraphNode* tmpGraphNode = new GraphNode(input[i]);
     last->next = tmpGraphNode;
     last = last->next;
+    GraphNode* myFriend = find(input[i]);
+    if(myFriend){
+      myFriend->addFriend(input[0]);
+    }
   }
 }
 
